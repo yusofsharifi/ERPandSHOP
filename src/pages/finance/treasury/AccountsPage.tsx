@@ -64,7 +64,7 @@ const AccountsPage: React.FC = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle>{t('Bank Accounts') || 'Bank Accounts'}</CardTitle>
+            <CardTitle>{t('treasury.bank_accounts') || 'Bank Accounts'}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
