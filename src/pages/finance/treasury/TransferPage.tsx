@@ -98,7 +98,7 @@ const TransferPage: React.FC = () => {
         </CardContent>
       </Card>
 
-      <Modal open={confirmOpen} onOpenChange={setConfirmOpen} title={t('Confirm Transfer') || 'Confirm Transfer'}>
+      <Modal open={confirmOpen} onOpenChange={setConfirmOpen} title={t('treasury.confirm_transfer') || 'Confirm Transfer'}>
         <div className="space-y-3">
           <div>{t('Are you sure you want to transfer') || 'Are you sure you want to transfer'} <strong>{amount}</strong></div>
           <div className="flex justify-end">
