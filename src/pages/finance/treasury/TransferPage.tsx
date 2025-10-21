@@ -56,7 +56,7 @@ const TransferPage: React.FC = () => {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm mb-1">{t('From Type') || 'From Type'}</label>
+              <label className="block text-sm mb-1">{t('treasury.from_type') || 'From Type'}</label>
               <select value={fromType} onChange={(e)=> setFromType(e.target.value)} className="w-full p-2 border rounded">
                 <option value="bank">Bank</option>
                 <option value="cash">Cash</option>
