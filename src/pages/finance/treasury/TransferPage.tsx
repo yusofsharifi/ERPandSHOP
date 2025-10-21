@@ -100,7 +100,7 @@ const TransferPage: React.FC = () => {
 
       <Modal open={confirmOpen} onOpenChange={setConfirmOpen} title={t('treasury.confirm_transfer') || 'Confirm Transfer'}>
         <div className="space-y-3">
-          <div>{t('Are you sure you want to transfer') || 'Are you sure you want to transfer'} <strong>{amount}</strong></div>
+          <div>{t('treasury.are_you_sure_transfer') || 'Are you sure you want to transfer'} <strong>{amount}</strong></div>
           <div className="flex justify-end">
             <Button variant="outline" onClick={() => setConfirmOpen(false)}>{t('Cancel') || 'Cancel'}</Button>
             <Button onClick={doTransfer} className="ml-2">{t('Confirm') || 'Confirm'}</Button>
