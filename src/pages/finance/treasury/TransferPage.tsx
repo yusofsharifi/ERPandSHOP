@@ -51,7 +51,7 @@ const TransferPage: React.FC = () => {
       </div>
       <Card>
         <CardHeader>
-          <CardTitle>{t('New Transfer') || 'New Transfer'}</CardTitle>
+          <CardTitle>{t('treasury.new_transfer') || 'New Transfer'}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
