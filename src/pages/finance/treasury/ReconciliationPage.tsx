@@ -51,7 +51,7 @@ const ReconciliationPage: React.FC = () => {
           </div>
 
           <div className="mb-4">
-            <h4 className="font-semibold mb-2">{t('Field mapping') || 'Field mapping'}</h4>
+            <h4 className="font-semibold mb-2">{t('treasury.field_mapping') || 'Field mapping'}</h4>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
               <div>
                 <label className="block text-sm mb-1">{t('Date field') || 'Date field'}</label>
