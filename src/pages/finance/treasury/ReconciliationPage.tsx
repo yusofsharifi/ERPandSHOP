@@ -73,7 +73,7 @@ const ReconciliationPage: React.FC = () => {
           </div>
 
           <div>
-            <h4 className="font-semibold mb-2">{t('Matches') || 'Matches'}</h4>
+            <h4 className="font-semibold mb-2">{t('treasury.matches') || 'Matches'}</h4>
             <div className="space-y-2">
               {matches.map((m, idx) => (
                 <div key={idx} className="p-2 border rounded flex justify-between">
