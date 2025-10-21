@@ -1,0 +1,155 @@
+import React from 'react'
+import { NavLink, useLocation } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import { motion } from 'framer-motion'
+import {
+  Home,
+  User,
+  Settings,
+  LogOut,
+  X,
+  DollarSign,
+  Package,
+  Users,
+  BarChart3,
+  Store,
+  Building2,
+  Bell,
+} from 'lucide-react'
+import { useAuth } from '@/contexts/AuthContext'
+import { Button } from '@/components/ui/Button'
+
+interface SidebarMenuProps {
+  onClose: () => void
+}
+
+const SidebarMenu = ({ onClose }: SidebarMenuProps) => {
+  const { logout, user } = useAuth()
+  const { t, i18n } = useTranslation()
+  const location = useLocation()
+  const isRTL = i18n.language === 'fa'
+
+  const menuItems = [
+    { icon: Home, label: t('dashboard'), path: '/dashboard' },
+    { icon: Users, label: 'Users', path: '/users' },
+    { icon: Users, label: 'Roles', path: '/roles', adminOnly: true },
+    { icon: DollarSign, label: 'Finance', path: '/finance' },
+    { icon: Package, label: 'Inventory', path: '/inventory' },
+    { icon: Users, label: 'CRM', path: '/crm' },
+    { icon: Building2, label: 'HR', path: '/hr' },
+    { icon: BarChart3, label: 'Analytics', path: '/analytics' },
+    { icon: Bell, label: 'Notifications', path: '/notifications' },
+    { icon: Store, label: 'E-Commerce', path: '/ecommerce' },
+  ]
+
+  const settingsItems = [
+    { icon: User, label: t('profile'), path: '/profile' },
+    { icon: Settings, label: t('settings'), path: '/settings' },
+    // System Settings - visible to admins
+    { icon: Settings, label: 'System Settings', path: '/admin/system-settings', adminOnly: true },
+  ]
+
+  const handleLogout = () => {
+    logout()
+    onClose()
+  }
+
+  return (
+    <div className="flex flex-col h-full">
+      {/* Header */}
+      <div className={`flex items-center justify-between p-4 border-b border-border ${isRTL ? 'flex-row-reverse' : ''}`}>
+        <div className={`flex items-center gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
+          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+            <span className="text-primary-foreground font-bold text-sm">BG</span>
+          </div>
+          <div>
+            <h2 className="font-semibold text-sm">BizGenius</h2>
+            <p className="text-xs text-muted-foreground">ERP & E-Commerce</p>
+          </div>
+        </div>
+        <Button variant="ghost" size="icon" onClick={onClose} className="lg:hidden h-8 w-8">
+          <X className="h-4 w-4" />
+        </Button>
+      </div>
+
+      {/* User Info */}
+      {user && (
+        <div className="p-4 border-b border-border">
+          <div className={`flex items-center gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
+            <div className="w-10 h-10 bg-muted rounded-full flex items-center justify-center overflow-hidden">
+              {user.avatar ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={user.avatar} alt={user.name} className="w-10 h-10 rounded-full object-cover" />
+              ) : (
+                <User className="h-5 w-5 text-muted-foreground" />
+              )}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-medium text-sm truncate">{user.name}</p>
+              <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+              <p className="text-xs text-primary">{user.role}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Navigation */}
+      <nav className="flex-1 p-4 space-y-2">
+        <div className="space-y-1">
+          {menuItems.map((item) => (
+            <NavLink
+              key={item.path}
+              to={item.path}
+              onClick={onClose}
+              className={({ isActive }) =>
+                `flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${
+                  isRTL ? 'space-x-reverse' : ''
+                } ${
+                  isActive ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                }`
+              }
+            >
+              <item.icon className="h-4 w-4" />
+              <span className="text-sm font-medium">{item.label}</span>
+            </NavLink>
+          ))}
+        </div>
+
+        <div className="pt-4 border-t border-border">
+          <div className="space-y-1">
+            {settingsItems.map((item) => {
+              if ((item as any).adminOnly && user?.role !== 'Admin') return null
+              return (
+                <NavLink
+                  key={item.path}
+                  to={item.path}
+                  onClick={onClose}
+                  className={({ isActive }) =>
+                    `flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${
+                      isRTL ? 'space-x-reverse' : ''
+                    } ${
+                      isActive ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                    }`
+                  }
+                >
+                  <item.icon className="h-4 w-4" />
+                  <span className="text-sm font-medium">{item.label}</span>
+                </NavLink>
+              )
+            })}
+          </div>
+        </div>
+      </nav>
+
+      {/* Logout */}
+      <div className="p-4 border-t border-border">
+        <Button variant="ghost" onClick={handleLogout} className={`w-full justify-start ${isRTL ? 'flex-row-reverse' : ''}`}>
+          <LogOut className="h-4 w-4" />
+          <span className="ml-3">{t('logout')}</span>
+        </Button>
+      </div>
+    </div>
+  )
+}
+
+export default SidebarMenu
