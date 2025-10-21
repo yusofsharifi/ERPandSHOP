@@ -53,7 +53,7 @@ const CashflowPage: React.FC = () => {
       <Modal open={open} onOpenChange={setOpen} title={detail ? `${detail.label} — ${detail.amount}` : 'Detail'}>
         {detail && (
           <div>
-            <h4 className="font-semibold mb-2">Items</h4>
+            <h4 className="font-semibold mb-2">{t('treasury.matches') || 'Items'}</h4>
             <div className="space-y-2">
               {detail.items.map((it:any) => (
                 <div key={it.id} className="p-2 border rounded">{it.desc} — {it.amt}</div>
