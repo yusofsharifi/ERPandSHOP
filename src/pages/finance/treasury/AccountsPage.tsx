@@ -41,7 +41,7 @@ const AccountsPage: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card>
           <CardHeader>
-            <CardTitle>{t('Cash Accounts') || 'Cash Accounts'}</CardTitle>
+            <CardTitle>{t('treasury.cash_accounts') || 'Cash Accounts'}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
