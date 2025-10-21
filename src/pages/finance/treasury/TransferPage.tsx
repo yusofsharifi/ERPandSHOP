@@ -92,7 +92,7 @@ const TransferPage: React.FC = () => {
           </div>
 
           <div className="flex justify-end gap-2 mt-4">
-            <Button variant="outline" onClick={() => { setFromId(null); setToId(null); setAmount(0) }}>{t('Reset') || 'Reset'}</Button>
+            <Button variant="outline" onClick={() => { setFromId(null); setToId(null); setAmount(0) }}>{t('treasury.reset') || 'Reset'}</Button>
             <Button onClick={() => setConfirmOpen(true)}>{t('treasury.transfer') || 'Transfer'}</Button>
           </div>
         </CardContent>
