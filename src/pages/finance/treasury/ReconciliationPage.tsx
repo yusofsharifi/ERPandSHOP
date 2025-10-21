@@ -42,7 +42,7 @@ const ReconciliationPage: React.FC = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>{t('Upload Statement') || 'Upload Statement'}</CardTitle>
+          <CardTitle>{t('treasury.upload_statement') || 'Upload Statement'}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="mb-4">
