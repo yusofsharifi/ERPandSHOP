@@ -9,6 +9,7 @@ from app.services import notification_service
 from app.services.gl_service import gl_service
 from app.core.config import settings
 import sqlalchemy as sa
+from sqlalchemy.orm import Session
 
 
 def compute_line_total(line: ap_schemas.InvoiceLineIn) -> Decimal:
