@@ -36,7 +36,7 @@ const ReconciliationPage: React.FC = () => {
   return (
     <div dir={i18n.language === 'fa' ? 'rtl' : 'ltr'}>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-2xl font-semibold">{t('Bank Reconciliation') || 'Bank Reconciliation'}</h2>
+        <h2 className="text-2xl font-semibold">{t('treasury.upload_statement') || 'Bank Reconciliation'}</h2>
         <div />
       </div>
 
