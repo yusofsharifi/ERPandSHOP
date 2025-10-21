@@ -77,7 +77,7 @@ const AccountsPage: React.FC = () => {
                   </div>
                   <div className="text-right">
                     <div className={`font-semibold ${lowBalance(b.balance) ? 'text-destructive' : ''}`}>{b.balance} {b.currency}</div>
-                    {lowBalance(b.balance) && <div className="text-xs text-destructive">{t('Low balance') || 'Low balance'}</div>}
+                    {lowBalance(b.balance) && <div className="text-xs text-destructive">{t('treasury.low_balance') || 'Low balance'}</div>}
                   </div>
                 </div>
               ))}
