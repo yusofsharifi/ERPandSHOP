@@ -86,7 +86,7 @@ const ReconciliationPage: React.FC = () => {
 
           <div className="flex justify-end mt-4">
             <Button variant="outline" onClick={()=> setPreviewRows([])}>{t('treasury.reset') || 'Reset'}</Button>
-            <Button onClick={applyReconciliation} className="ml-2">{t('Apply') || 'Apply'}</Button>
+            <Button onClick={applyReconciliation} className="ml-2">{t('treasury.apply') || 'Apply'}</Button>
           </div>
         </CardContent>
       </Card>
