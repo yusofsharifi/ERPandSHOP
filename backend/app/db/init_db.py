@@ -14,6 +14,7 @@ def init_db() -> None:
     import app.models.login_attempt
     import app.models.two_fa_code
     import app.models.gl_models
+    import app.models.ar_ap
 
     Base.metadata.create_all(bind=engine)
 
