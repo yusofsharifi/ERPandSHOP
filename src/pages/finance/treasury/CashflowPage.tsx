@@ -27,7 +27,7 @@ const CashflowPage: React.FC = () => {
   return (
     <div dir={i18n.language === 'fa' ? 'rtl' : 'ltr'}>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-2xl font-semibold">{t('Cash Flow') || 'Cash Flow'}</h2>
+        <h2 className="text-2xl font-semibold">{t('treasury.cashflow') || 'Cash Flow'}</h2>
         <div />
       </div>
 
