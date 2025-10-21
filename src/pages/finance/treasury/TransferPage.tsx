@@ -61,7 +61,7 @@ const TransferPage: React.FC = () => {
                 <option value="bank">Bank</option>
                 <option value="cash">Cash</option>
               </select>
-              <label className="block text-sm mb-1 mt-2">{t('From Account') || 'From Account'}</label>
+              <label className="block text-sm mb-1 mt-2">{t('treasury.from_account') || 'From Account'}</label>
               <select value={fromId || ''} onChange={(e)=> setFromId(e.target.value || null)} className="w-full p-2 border rounded">
                 <option value="">-- select --</option>
                 {sources.map(s => <option key={s.id} value={s.id}>{s.bank_name || s.name} ({s.balance})</option>)}
