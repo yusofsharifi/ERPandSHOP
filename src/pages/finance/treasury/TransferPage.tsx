@@ -83,7 +83,7 @@ const TransferPage: React.FC = () => {
           </div>
 
           <div className="mt-4">
-            <label className="block text-sm mb-1">{t('Amount') || 'Amount'}</label>
+            <label className="block text-sm mb-1">{t('treasury.amount') || 'Amount'}</label>
             <Input type="number" value={amount} onChange={(e)=> setAmount(Number(e.target.value))} />
           </div>
 
