@@ -25,6 +25,7 @@ app.include_router(notifications.router, prefix=settings.API_V1_STR + "/notifica
 app.include_router(dashboard.router, prefix=settings.API_V1_STR + "/dashboard", tags=["dashboard"])
 app.include_router(finance_gl.router, prefix=settings.API_V1_STR + "/finance", tags=["finance"])
 app.include_router(ar_ap.router, prefix=settings.API_V1_STR + "/arap", tags=["arap"])
+app.include_router(treasury.router, prefix=settings.API_V1_STR + "/treasury", tags=["treasury"])
 
 @app.on_event("startup")
 def on_startup():
