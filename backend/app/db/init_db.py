@@ -16,6 +16,7 @@ def init_db() -> None:
     import app.models.gl_models
     import app.models.ar_ap
     import app.models.treasury
+    import app.models.payroll
 
     Base.metadata.create_all(bind=engine)
 
