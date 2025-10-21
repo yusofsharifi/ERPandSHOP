@@ -88,7 +88,7 @@ const TransferPage: React.FC = () => {
           </div>
 
           <div className="mt-4">
-            <div className="text-sm">{t('Preview balance after transfer') || 'Preview balance after transfer'}: {previewBalance !== null ? previewBalance.toFixed(2) : '-'}</div>
+            <div className="text-sm">{t('treasury.preview_balance') || 'Preview balance after transfer'}: {previewBalance !== null ? previewBalance.toFixed(2) : '-'}</div>
           </div>
 
           <div className="flex justify-end gap-2 mt-4">
