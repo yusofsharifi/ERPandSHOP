@@ -67,7 +67,33 @@ const resources = {
       'gl.error.not_balanced': 'Total debit and credit must match',
       'gl.success.entry_saved': 'Journal entry saved',
       'finance.journal_new': 'New Journal Entry',
-      'finance.journal_list': 'Journal Entries'
+      'finance.journal_list': 'Journal Entries',
+      // Treasury
+      'treasury.accounts': 'Treasury Accounts',
+      'treasury.cash_accounts': 'Cash Accounts',
+      'treasury.bank_accounts': 'Bank Accounts',
+      'treasury.low_balance': 'Low balance',
+      'treasury.transfer': 'Transfer',
+      'treasury.new_transfer': 'New Transfer',
+      'treasury.from_type': 'From Type',
+      'treasury.from_account': 'From Account',
+      'treasury.to_type': 'To Type',
+      'treasury.to_account': 'To Account',
+      'treasury.amount': 'Amount',
+      'treasury.preview_balance': 'Preview balance after transfer',
+      'treasury.reset': 'Reset',
+      'treasury.confirm_transfer': 'Confirm Transfer',
+      'treasury.are_you_sure_transfer': 'Are you sure you want to transfer',
+      'treasury.suggest_matches': 'Suggest matches',
+      'treasury.matches': 'Matches',
+      'treasury.apply': 'Apply',
+      'treasury.upload_statement': 'Upload Statement',
+      'treasury.selected': 'Selected',
+      'treasury.field_mapping': 'Field mapping',
+      'treasury.date_field': 'Date field',
+      'treasury.description_field': 'Description field',
+      'treasury.amount_field': 'Amount field',
+      'treasury.cashflow': 'Cash Flow',
     }
   },
   fa: {
@@ -87,13 +113,13 @@ const resources = {
       'createAccount': 'ایجاد حساب کاربری',
       'alreadyHaveAccount': 'حساب کاربری دارید؟',
       'dontHaveAccount': 'حساب کاربری ندارید؟',
-      
+
       // Navigation
       'dashboard': 'داشبورد',
       'profile': 'پروفایل کاربر',
       'settings': 'تنظیمات',
       'notifications': 'اعلان‌ها',
-      
+
       // Common
       'save': 'ذخیره',
       'cancel': 'لغو',
@@ -104,18 +130,18 @@ const resources = {
       'welcome': 'خوش‌آمدید',
       'search': 'جستجو',
       'menu': 'منو',
-      
+
       // Profile
       'userProfile': 'پروفایل کاربر',
       'editProfile': 'ویرایش پروفایل',
       'changePassword': 'تغییر رمز عبور',
       'uploadAvatar': 'آپلود تصویر',
-      
+
       // Theme
       'lightMode': 'حالت روشن',
       'darkMode': 'حالت تاریک',
       'language': 'زبان',
-      
+
       // Messages
       'loginSuccess': 'ورود موفقیت‌آمیز بود!',
       'loginError': 'ورود ناموفق. لطفا اطلاعات ورود را بررسی کنید.',
@@ -133,7 +159,33 @@ const resources = {
       'gl.error.not_balanced': 'جمع بدهکاری و بستانکاری برابر نیست',
       'gl.success.entry_saved': 'سند ذخیره شد',
       'finance.journal_new': 'سند جدید',
-      'finance.journal_list': 'اسناد حسابداری'
+      'finance.journal_list': 'اسناد حسابداری',
+      // Treasury
+      'treasury.accounts': 'حساب‌های خزانه',
+      'treasury.cash_accounts': 'حساب‌های نقدی',
+      'treasury.bank_accounts': 'حساب‌های بانکی',
+      'treasury.low_balance': 'موجودی کم',
+      'treasury.transfer': 'انتقال',
+      'treasury.new_transfer': 'انتقال جدید',
+      'treasury.from_type': 'نوع مبدا',
+      'treasury.from_account': 'حساب مبدا',
+      'treasury.to_type': 'نوع مقصد',
+      'treasury.to_account': 'حساب مقصد',
+      'treasury.amount': 'مبلغ',
+      'treasury.preview_balance': 'پیش‌نمایش موجودی پس از انتقال',
+      'treasury.reset': 'بازنشانی',
+      'treasury.confirm_transfer': 'تأیید انتقال',
+      'treasury.are_you_sure_transfer': 'آیا از انجام انتقال مطمئن هستید؟',
+      'treasury.suggest_matches': 'پیشنهاد تطبیق‌ها',
+      'treasury.matches': 'تطبیق‌ها',
+      'treasury.apply': 'اعمال',
+      'treasury.upload_statement': 'بارگذاری صورت‌حساب',
+      'treasury.selected': 'انتخاب شده',
+      'treasury.field_mapping': 'نگاشت فیلدها',
+      'treasury.date_field': 'فیلد تاریخ',
+      'treasury.description_field': 'فیلد شرح',
+      'treasury.amount_field': 'فیلد مبلغ',
+      'treasury.cashflow': 'جریان نقدی'
     }
   }
 }
