@@ -69,7 +69,7 @@ const ReconciliationPage: React.FC = () => {
           </div>
 
           <div className="mb-4">
-            <Button onClick={suggestMatches}>{t('Suggest matches') || 'Suggest matches'}</Button>
+            <Button onClick={suggestMatches}>{t('treasury.suggest_matches') || 'Suggest matches'}</Button>
           </div>
 
           <div>
