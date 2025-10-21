@@ -52,6 +52,11 @@ function App() {
               <Route path="finance/journal-entries" element={<JournalEntriesPage />} />
               <Route path="finance/journal-entries/new" element={<JournalEntryNewPage />} />
               <Route path="finance/reports/trial-balance" element={<TrialBalancePage />} />
+              <Route path="finance/partners" element={<PartnersPage />} />
+              <Route path="finance/invoices" element={<InvoicesPage />} />
+              <Route path="finance/invoices/new" element={<InvoiceNewPage />} />
+              <Route path="finance/invoices/:id" element={<InvoiceViewPage />} />
+              <Route path="finance/payments" element={<PaymentsPage />} />
             </Route>
             
             {/* Catch all */}
