@@ -47,7 +47,7 @@ const ReconciliationPage: React.FC = () => {
         <CardContent>
           <div className="mb-4">
             <input type="file" accept=".csv" onChange={(e)=> onFile(e.target.files?.[0])} />
-            {fileName && <div className="text-sm mt-2">{t('Selected') || 'Selected'}: {fileName}</div>}
+            {fileName && <div className="text-sm mt-2">{t('treasury.selected') || 'Selected'}: {fileName}</div>}
           </div>
 
           <div className="mb-4">
