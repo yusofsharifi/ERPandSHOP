@@ -58,7 +58,7 @@ const ReconciliationPage: React.FC = () => {
                 <input value={mappings.date} onChange={(e)=> setMappings({...mappings, date: e.target.value})} className="p-2 border rounded w-full" />
               </div>
               <div>
-                <label className="block text-sm mb-1">{t('Description field') || 'Description field'}</label>
+                <label className="block text-sm mb-1">{t('treasury.description_field') || 'Description field'}</label>
                 <input value={mappings.desc} onChange={(e)=> setMappings({...mappings, desc: e.target.value})} className="p-2 border rounded w-full" />
               </div>
               <div>
