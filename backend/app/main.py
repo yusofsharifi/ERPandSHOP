@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.db.init_db import init_db
 
-from app.api.routes import auth, users, roles, settings as settings_router, notifications, dashboard, finance_gl
+from app.api.routes import auth, users, roles, settings as settings_router, notifications, dashboard, finance_gl, ar_ap
 
 app = FastAPI(title=settings.PROJECT_NAME)
 
