@@ -33,7 +33,7 @@ const CashflowPage: React.FC = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>{t('Interactive cash flow') || 'Interactive cash flow'}</CardTitle>
+          <CardTitle>{t('treasury.cashflow') || 'Interactive cash flow'}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="mb-4">
