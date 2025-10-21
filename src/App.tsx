@@ -61,6 +61,12 @@ function App() {
               <Route path="finance/invoices/new" element={<InvoiceNewPage />} />
               <Route path="finance/invoices/:id" element={<InvoiceViewPage />} />
               <Route path="finance/payments" element={<PaymentsPage />} />
+
+              {/* Treasury */}
+              <Route path="finance/treasury/accounts" element={<TreasuryAccountsPage />} />
+              <Route path="finance/treasury/transfer" element={<TreasuryTransferPage />} />
+              <Route path="finance/treasury/reconciliation" element={<TreasuryReconciliationPage />} />
+              <Route path="finance/treasury/cashflow" element={<TreasuryCashflowPage />} />
             </Route>
             
             {/* Catch all */}
