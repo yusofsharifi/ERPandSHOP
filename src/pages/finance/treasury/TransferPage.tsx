@@ -47,7 +47,7 @@ const TransferPage: React.FC = () => {
   return (
     <div dir={i18n.language === 'fa' ? 'rtl' : 'ltr'}>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-2xl font-semibold">{t('Transfer') || 'Transfer'}</h2>
+        <h2 className="text-2xl font-semibold">{t('treasury.transfer') || 'Transfer'}</h2>
       </div>
       <Card>
         <CardHeader>
@@ -93,7 +93,7 @@ const TransferPage: React.FC = () => {
 
           <div className="flex justify-end gap-2 mt-4">
             <Button variant="outline" onClick={() => { setFromId(null); setToId(null); setAmount(0) }}>{t('Reset') || 'Reset'}</Button>
-            <Button onClick={() => setConfirmOpen(true)}>{t('Transfer') || 'Transfer'}</Button>
+            <Button onClick={() => setConfirmOpen(true)}>{t('treasury.transfer') || 'Transfer'}</Button>
           </div>
         </CardContent>
       </Card>
