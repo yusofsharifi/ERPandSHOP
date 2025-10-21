@@ -54,7 +54,7 @@ const ReconciliationPage: React.FC = () => {
             <h4 className="font-semibold mb-2">{t('treasury.field_mapping') || 'Field mapping'}</h4>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
               <div>
-                <label className="block text-sm mb-1">{t('Date field') || 'Date field'}</label>
+                <label className="block text-sm mb-1">{t('treasury.date_field') || 'Date field'}</label>
                 <input value={mappings.date} onChange={(e)=> setMappings({...mappings, date: e.target.value})} className="p-2 border rounded w-full" />
               </div>
               <div>
