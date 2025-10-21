@@ -67,6 +67,9 @@ class PayrollRun(Base):
     period_end = Column(Date, nullable=False)
     generated_at = Column(DateTime(timezone=True), nullable=True)
     status = Column(PG_ENUM(PayrollStatusEnum, name='payroll_status', create_type=False), nullable=False, default=PayrollStatusEnum.draft)
+    manager_approved = Column(Boolean, nullable=False, default=False)
+    manager_approved_by = Column(PGUUID(as_uuid=True), nullable=True)
+    manager_approved_at = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime(timezone=True), default=datetime.utcnow, nullable=False)
 
     lines = relationship("PayrollLine", back_populates="payroll", cascade='all, delete-orphan')
@@ -113,4 +116,33 @@ class PayrollJournalLink(Base):
 
     __table_args__ = (
         Index('ix_payroll_journal_run', 'payroll_run_id'),
+    )
+
+
+class AttendanceRecord(Base):
+    __tablename__ = 'attendance_records'
+
+    id = Column(PGUUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    employee_id = Column(PGUUID(as_uuid=True), ForeignKey('employees.id', ondelete='CASCADE'), nullable=False, index=True)
+    date = Column(Date, nullable=False, index=True)
+    hours_worked = Column(Numeric(10,2), nullable=True, default=0)
+    absence_days = Column(Numeric(10,2), nullable=True, default=0)
+    overtime_hours = Column(Numeric(10,2), nullable=True, default=0)
+    created_at = Column(DateTime(timezone=True), default=datetime.utcnow, nullable=False)
+
+    employee = relationship('Employee')
+
+
+class PayrollRule(Base):
+    __tablename__ = 'payroll_rules'
+
+    id = Column(PGUUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    name = Column(String(255), nullable=False)
+    rule_type = Column(String(50), nullable=False)  # e.g. 'tax', 'social'
+    expression = Column(String, nullable=False)  # e.g. '0.10 * gross'
+    active = Column(Boolean, nullable=False, default=True)
+    created_at = Column(DateTime(timezone=True), default=datetime.utcnow, nullable=False)
+
+    __table_args__ = (
+        Index('ix_payroll_rules_type', 'rule_type'),
     )
