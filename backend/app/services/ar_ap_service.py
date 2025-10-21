@@ -8,7 +8,7 @@ from app.schemas import ar_ap as ap_schemas
 from app.services import notification_service
 from app.services.gl_service import gl_service
 from app.core.config import settings
-from app.models.gl_models import JournalEntryCreate if False else None
+import sqlalchemy as sa
 
 
 def compute_line_total(line: ap_schemas.InvoiceLineIn) -> Decimal:
