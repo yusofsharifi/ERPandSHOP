@@ -69,7 +69,7 @@ const TransferPage: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-sm mb-1">{t('To Type') || 'To Type'}</label>
+              <label className="block text-sm mb-1">{t('treasury.to_type') || 'To Type'}</label>
               <select value={toType} onChange={(e)=> setToType(e.target.value)} className="w-full p-2 border rounded">
                 <option value="cash">Cash</option>
                 <option value="bank">Bank</option>
