@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from app.db.session import SessionLocal
 from app.models.ar_ap import Invoice
-from app.services.notification_service import create_notification, send_email_to_roles
+from app.services.notification_service import send_to_role
 
 
 def run_overdue_check():
@@ -11,12 +11,9 @@ def run_overdue_check():
         today = date.today()
         overdue = db.query(Invoice).filter(Invoice.due_date != None, Invoice.due_date < today, Invoice.status.in_(['open','partial'])).all()
         for inv in overdue:
-            # create notification
             msg = f"Invoice {inv.invoice_no} is overdue"
-            create_notification(db, title="Overdue Invoice", body=msg, level='warning', company_id=inv.company_id)
-            # optional: send email to roles
             try:
-                send_email_to_roles(db, role='accounting', subject='Overdue Invoice', body=msg)
+                send_to_role(db, 'Accounting', 'Overdue invoice', msg, type='warning', email_alert=False)
             except Exception:
                 pass
     finally:
