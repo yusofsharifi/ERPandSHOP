@@ -2,6 +2,7 @@ from pydantic import BaseModel, Field, condecimal, EmailStr
 from typing import List, Optional
 from uuid import UUID
 from datetime import date
+from pydantic import BaseModel, condecimal, EmailStr
 
 Money = condecimal(max_digits=20, decimal_places=2)
 
