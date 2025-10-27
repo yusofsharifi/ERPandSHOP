@@ -136,29 +136,56 @@ class ARAPService:
         return inv
 
     @staticmethod
+    def _generate_invoice_no(db: Session, company_id, series: str = '') -> str:
+        # concurrency-safe invoice number generation using gl_auto_number table (row-level lock)
+        year = date.today().year
+        # ensure row exists
+        row = db.execute("SELECT id, last_number FROM gl_auto_number WHERE company_id = :cid AND year = :yr FOR UPDATE", {'cid': str(company_id), 'yr': year}).fetchone()
+        if row is None:
+            # insert initial
+            db.execute("INSERT INTO gl_auto_number (id, year, company_id, last_number) VALUES (gen_random_uuid(), :yr, :cid, 1)", {'yr': year, 'cid': str(company_id)})
+            last = 1
+        else:
+            last = int(row[1]) + 1
+            db.execute("UPDATE gl_auto_number SET last_number = :ln WHERE company_id = :cid AND year = :yr", {'ln': last, 'cid': str(company_id), 'yr': year})
+        # Compose invoice no
+        seq = str(last).zfill(6)
+        inv_no = f"{series}{year}{seq}" if series else f"{year}{seq}"
+        return inv_no
+
     def post_invoice(db: Session, invoice_id: UUID, performed_by: Optional[int] = None, require_credit_limit: bool = True):
-        inv = db.query(Invoice).filter(Invoice.id == invoice_id).first()
+        inv = db.query(Invoice).filter(Invoice.id == invoice_id).with_for_update().first()
         if not inv:
             raise KeyError('invoice_not_found')
         if inv.status != 'draft':
             raise ValueError('cannot_post_non_draft')
         # recompute totals from lines
         lines = db.query(InvoiceLine).filter(InvoiceLine.invoice_id == inv.id).all()
-        calc_total = sum([l.line_total + (l.line_total * l.tax_rate) for l in lines]) if lines else 0
-        calc_total = Decimal(calc_total).quantize(Decimal('0.01'))
+        calc_total = Decimal('0')
+        for l in lines:
+            # compute line totals if not set
+            amt = Decimal(l.qty or 0) * Decimal(l.unit_price or 0)
+            tax = amt * (Decimal(l.tax_rate or 0) / Decimal('100'))
+            line_total = (amt + tax).quantize(Decimal('0.01'))
+            calc_total += line_total
         if Decimal(inv.total_amount) != calc_total:
             raise ValueError('invoice_total_mismatch')
         # credit limit enforcement
         partner = db.query(Partner).filter(Partner.id == inv.partner_id).first()
-        if require_credit_limit and partner and partner.credit_limit is not None:
+        if require_credit_limit and partner and partner.credit_limit is not None and partner.credit_limit > 0:
             # sum outstanding balances excluding this draft
             outstanding = db.query(Invoice).filter(Invoice.partner_id == partner.id, Invoice.status.in_(['open','partial'])).with_entities(sa.func.coalesce(sa.func.sum(Invoice.balance_amount),0)).scalar() or 0
             from decimal import Decimal as D
             outstanding = D(outstanding)
             if outstanding + D(inv.total_amount) > D(partner.credit_limit):
                 raise ValueError('credit_limit_exceeded')
+        # generate invoice_no safely
+        try:
+            inv_no = ARAPService._generate_invoice_no(db, inv.company_id, series=inv.series or '')
+        except Exception:
+            raise ValueError('invoice_number_generation_failed')
+        inv.invoice_no = inv_no
         # create journal entry via gl_service: find AR/AP account
-        # attempt to find receivable/payable account
         acc_search = 'receivable' if inv.invoice_type == 'sale' else 'payable'
         accounts = gl_service.list_accounts(search=acc_search)
         if accounts.get('total',0) == 0:
@@ -167,19 +194,17 @@ class ARAPService:
         # build journal lines: debit AR (account_id) total_amount, credit revenue placeholder
         from app.schemas.gl import JournalLineIn, JournalEntryCreate
         total_amt = Decimal(inv.total_amount)
-        # Find a revenue/expense account for contra; search 'revenue' or 'expense'
         contra_search = 'revenue' if inv.invoice_type == 'sale' else 'expense'
         contra_accounts = gl_service.list_accounts(search=contra_search)
         if contra_accounts.get('total',0) == 0:
             raise ValueError('missing_gl_contra_account')
         contra_id = contra_accounts['items'][0]['id']
-        # assemble lines
         lines_payload = [
             JournalLineIn(line_no=1, account_id=account_id, debit=total_amt, credit=0),
             JournalLineIn(line_no=2, account_id=contra_id, debit=0, credit=total_amt),
         ]
         payload = JournalEntryCreate(
-            company_id=uuid4(),
+            company_id=inv.company_id,
             fiscal_year=date.today().year,
             period=str(date.today().month),
             date=inv.date,
@@ -189,9 +214,16 @@ class ARAPService:
         je = gl_service.create_journal_entry(payload, created_by=performed_by)
         # mark invoice as open
         inv.status = 'open'
+        inv.posted_at = datetime.utcnow()
+        db.add(inv)
         db.commit()
         db.refresh(inv)
-        # audit: use notification service to send to role
+        # audit
+        try:
+            from app.services.gl_service import gl_service as _gl
+            _gl._audit('invoice', str(inv.id), 'post', {'invoice_no': inv.invoice_no, 'total_amount': str(inv.total_amount)}, performed_by=performed_by)
+        except Exception:
+            pass
         notification_service.send_to_role(db, 'Accounting', 'Invoice posted', f'Invoice {inv.invoice_no} posted', type='info')
         return inv
 
