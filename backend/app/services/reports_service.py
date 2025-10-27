@@ -281,9 +281,13 @@ def ledger(company_id: str, account_id: Optional[str], date_from: Optional[str],
     sql += " LIMIT :limit OFFSET :offset"
 
     params = {"company_id": company_id, "account_id": account_id, "date_from": date_from, "date_to": date_to, "limit": per_page, "offset": (page-1)*per_page}
-    rows = _exec_sql(sql, params)
+    rows = _exec_sql(sql, params, prefer_read=False)
     if rows is not None:
-        return rows
+        # attach drill-down link per row
+        for r in rows:
+            if 'account_code' in r:
+                r['ledger_link'] = f"{settings.SERVER_HOST}{settings.API_V1_STR}/finance/reports/ledger?account_id={r.get('account_code')}"
+        return {"items": rows, "total": len(rows)}
 
     # Fallback in-memory ledger
     res = []
@@ -292,7 +296,9 @@ def ledger(company_id: str, account_id: Optional[str], date_from: Optional[str],
         for ln in e.get('lines', []):
             if account_id and str(ln.get('account_id')) != str(account_id):
                 continue
-            res.append({'line_id': ln.get('id'), 'journal_id': e.get('id'), 'date': e.get('date'), 'line_no': ln.get('line_no'), 'debit': ln.get('debit'), 'credit': ln.get('credit'), 'description': ln.get('description')})
+            item = {'line_id': ln.get('id'), 'journal_id': e.get('id'), 'date': e.get('date'), 'line_no': ln.get('line_no'), 'debit': ln.get('debit'), 'credit': ln.get('credit'), 'description': ln.get('description')}
+            item['ledger_link'] = f"{settings.SERVER_HOST}{settings.API_V1_STR}/finance/reports/ledger?account_id={ln.get('account_id')}"
+            res.append(item)
     # simple pagination
     total = len(res)
     start = (page-1)*per_page
