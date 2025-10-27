@@ -1,19 +1,63 @@
 from typing import Optional, List, Dict, Any
-from datetime import date
+from datetime import datetime, timedelta
 from sqlalchemy import text
 from app.db import session
+from app.core.config import settings
 from app.services.gl_service import gl_service
+import hashlib
+import json
 
-# NOTE: This service attempts to run SQL against the configured database using SQLAlchemy engine.
-# If no DB or engine is not available, it falls back to the in-memory gl_service implementation.
+# Caching: try Redis, otherwise in-memory TTL cache
+_redis = None
+_cache_store = {}
 
-def _exec_sql(sql: str, params: Dict[str, Any] = None):
+try:
+    import redis
+    if settings.REDIS_URL:
+        _redis = redis.Redis.from_url(settings.REDIS_URL, decode_responses=True)
+    else:
+        _redis = redis.Redis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, decode_responses=True)
+    _redis.ping()
+except Exception:
+    _redis = None
+
+
+def _cache_get(key: str):
+    ttl = settings.CACHE_TTL_SECONDS
+    if _redis:
+        try:
+            v = _redis.get(key)
+            if v is None:
+                return None
+            return json.loads(v)
+        except Exception:
+            return None
+    # in-memory
+    rec = _cache_store.get(key)
+    if not rec:
+        return None
+    value, exp = rec
+    if datetime.utcnow() > exp:
+        del _cache_store[key]
+        return None
+    return value
+
+
+def _cache_set(key: str, value, ttl: int = None):
+    ttl = ttl or settings.CACHE_TTL_SECONDS
+    if _redis:
+        try:
+            _redis.setex(key, int(ttl), json.dumps(value, default=str))
+            return
+        except Exception:
+            pass
+    _cache_store[key] = (value, datetime.utcnow() + timedelta(seconds=ttl))
+
+
+def _exec_sql(sql: str, params: Dict[str, Any] = None, prefer_read: bool = True):
     params = params or {}
     try:
-        eng = getattr(session, 'engine', None)
-        if eng is None:
-            # session module might expose engine directly
-            eng = session.engine
+        eng = session.get_engine(prefer_read=prefer_read)
         with eng.connect() as conn:
             res = conn.execute(text(sql), params)
             cols = res.keys()
@@ -21,6 +65,12 @@ def _exec_sql(sql: str, params: Dict[str, Any] = None):
             return rows
     except Exception:
         return None
+
+
+def _cache_key(prefix: str, params: Dict[str, Any]):
+    payload = json.dumps(params, sort_keys=True, default=str)
+    h = hashlib.sha1(payload.encode('utf-8')).hexdigest()
+    return f"reports:{prefix}:{h}"
 
 
 def trial_balance_sql(company_id: str, date_to: Optional[str] = None, include_zero: bool = False):
