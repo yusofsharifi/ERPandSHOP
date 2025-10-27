@@ -1,0 +1,43 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "AR_AP API",
+    "version": "1.0.0",
+    "description": "Minimal OpenAPI export for AR/AP endpoints (fa/en descriptions included)"
+  },
+  "paths": {
+    "/api/v1/arap/partners": {
+      "get": {
+        "summary": "List partners / لیست طرف حساب‌ها",
+        "responses": { "200": { "description": "OK" } }
+      },
+      "post": {
+        "summary": "Create partner / ایجاد طرف حساب",
+        "requestBody": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PartnerCreate" } } } },
+        "responses": { "201": { "description": "Created" } }
+      }
+    },
+    "/api/v1/arap/invoices": {
+      "get": { "summary": "List invoices / لیست فاکتورها", "responses": { "200": { "description": "OK" } } },
+      "post": { "summary": "Create invoice (draft) / ایجاد فاکتور (پیش‌نویس)", "responses": { "201": { "description": "Created" } } }
+    },
+    "/api/v1/arap/invoices/{invoice_id}/post": {
+      "post": { "summary": "Post invoice / ثبت فاکتور", "parameters": [{ "name": "invoice_id", "in": "path", "required": true, "schema": { "type": "string" } }], "responses": { "200": { "description": "OK" }, "403": { "description": "Credit limit exceeded" } } }
+    },
+    "/api/v1/arap/payments": {
+      "post": { "summary": "Create payment / ثبت پرداخت", "responses": { "201": { "description": "Created" } } }
+    },
+    "/api/v1/arap/overdue-check": {
+      "post": { "summary": "Run overdue check / اجرای بررسی فاکتورهای سررسید گذشته", "responses": { "200": { "description": "OK" } } }
+    }
+  },
+  "components": {
+    "schemas": {
+      "PartnerCreate": {
+        "type": "object",
+        "properties": { "name": { "type": "string" }, "partner_type": { "type": "string" }, "credit_limit": { "type": "string" } },
+        "required": ["name","partner_type"]
+      }
+    }
+  }
+}
