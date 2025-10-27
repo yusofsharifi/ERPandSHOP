@@ -17,6 +17,7 @@ import InvoicesPage from './pages/finance/InvoicesPage'
 import InvoiceNewPage from './pages/finance/InvoiceNewPage'
 import InvoiceViewPage from './pages/finance/InvoiceViewPage'
 import PaymentsPage from './pages/finance/PaymentsPage'
+import PartnerAgingPage from './pages/finance/PartnerAgingPage'
 import TreasuryAccountsPage from './pages/finance/treasury/AccountsPage'
 import TreasuryTransferPage from './pages/finance/treasury/TransferPage'
 import TreasuryReconciliationPage from './pages/finance/treasury/ReconciliationPage'
@@ -62,6 +63,7 @@ function App() {
               <Route path="finance/journal-entries/new" element={<JournalEntryNewPage />} />
               <Route path="finance/reports/trial-balance" element={<TrialBalancePage />} />
               <Route path="finance/partners" element={<PartnersPage />} />
+              <Route path="finance/partners/:id/aging" element={<PartnerAgingPage />} />
               <Route path="finance/invoices" element={<InvoicesPage />} />
               <Route path="finance/invoices/new" element={<InvoiceNewPage />} />
               <Route path="finance/invoices/:id" element={<InvoiceViewPage />} />
