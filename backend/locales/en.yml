@@ -1,0 +1,14 @@
+messages:
+  invoice_created: "Invoice created successfully"
+  invoice_posted: "Invoice posted"
+  payment_recorded: "Payment recorded"
+  credit_limit_exceeded: "Credit limit exceeded"
+  invoice_not_found: "Invoice not found"
+  check_not_found: "Check not found"
+  overdue_invoice_notif: "Invoice {invoice_no} is overdue"
+
+labels:
+  partners: "Partners"
+  invoices: "Invoices"
+  payments: "Payments"
+  aging_report: "Aging Report"
