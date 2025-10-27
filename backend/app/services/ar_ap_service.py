@@ -143,7 +143,8 @@ class ARAPService:
         row = db.execute("SELECT id, last_number FROM gl_auto_number WHERE company_id = :cid AND year = :yr FOR UPDATE", {'cid': str(company_id), 'yr': year}).fetchone()
         if row is None:
             # insert initial
-            db.execute("INSERT INTO gl_auto_number (id, year, company_id, last_number) VALUES (gen_random_uuid(), :yr, :cid, 1)", {'yr': year, 'cid': str(company_id)})
+            new_id = str(uuid.uuid4())
+            db.execute("INSERT INTO gl_auto_number (id, year, company_id, last_number) VALUES (:id, :yr, :cid, 1)", {'id': new_id, 'yr': year, 'cid': str(company_id)})
             last = 1
         else:
             last = int(row[1]) + 1
