@@ -107,21 +107,38 @@ def trial_balance_sql(company_id: str, date_to: Optional[str] = None, include_ze
 
 
 def trial_balance(company_id: str, date_to: Optional[str] = None, include_zero: bool = False):
-    # Try SQL execution first
+    params = {"company_id": company_id, "date_to": date_to, "include_zero": include_zero}
+    key = _cache_key('trial_balance', params)
+    cached = _cache_get(key)
+    if cached is not None:
+        return cached
+
     mv_sql, query_sql = trial_balance_sql(company_id, date_to=date_to, include_zero=include_zero)
-    rows = _exec_sql(query_sql, {"company_id": company_id, "date_to": date_to})
+    rows = _exec_sql(query_sql, {"company_id": company_id, "date_to": date_to}, prefer_read=True)
     if rows is not None:
-        return rows
+        # Chart-friendly JSON: label and net balance
+        chart = [{"label": r.get('account_code') or r.get('account_id'), "value": float(r.get('balance') or (r.get('total_debit',0)-r.get('total_credit',0)))} for r in rows]
+        res = {"items": rows, "chart": {"type": "bar", "data": chart}}
+        _cache_set(key, res)
+        return res
 
     # Fallback to in-memory aggregation
     items = gl_service.trial_balance(company_id, date_to=date_to)
     if not include_zero:
         items = [i for i in items if (i.get('debit',0) != 0 or i.get('credit',0) != 0)]
-    return items
+    chart = [{"label": i.get('account_id'), "value": float((i.get('debit',0)-i.get('credit',0)))} for i in items]
+    res = {"items": items, "chart": {"type":"bar", "data": chart}}
+    _cache_set(key, res)
+    return res
 
 
 def balance_sheet(company_id: str, date_to: Optional[str] = None):
-    # Balance sheet groups by account type
+    params = {"company_id": company_id, "date_to": date_to}
+    key = _cache_key('balance_sheet', params)
+    cached = _cache_get(key)
+    if cached is not None:
+        return cached
+
     sql = f"""
     SELECT account_type,
       SUM(total_debit) as total_debit,
@@ -138,14 +155,17 @@ def balance_sheet(company_id: str, date_to: Optional[str] = None):
         sql += " AND je.date <= :date_to\n"
     sql += " GROUP BY a.id, a.type) t GROUP BY account_type ORDER BY account_type"
 
-    rows = _exec_sql(sql, {"company_id": company_id, "date_to": date_to})
+    rows = _exec_sql(sql, {"company_id": company_id, "date_to": date_to}, prefer_read=True)
     if rows is not None:
-        return rows
+        # build chart
+        chart = [{"label": r.get('account_type'), "value": float(r.get('net_balance') or (r.get('total_debit',0)-r.get('total_credit',0)))} for r in rows]
+        res = {"items": rows, "chart": {"type":"pie", "data": chart}}
+        _cache_set(key, res)
+        return res
 
-    # Fallback: compute from trial_balance
     tb = trial_balance(company_id, date_to=date_to, include_zero=True)
     groups = {}
-    for r in tb:
+    for r in tb.get('items', tb):
         acc_type = r.get('account_type') or 'unknown'
         debit = float(r.get('debit',0))
         credit = float(r.get('credit',0))
@@ -155,11 +175,19 @@ def balance_sheet(company_id: str, date_to: Optional[str] = None):
     out = []
     for k,v in groups.items():
         out.append({'account_type': k, 'total_debit': v['total_debit'], 'total_credit': v['total_credit'], 'net_balance': v['total_debit']-v['total_credit']})
-    return out
+    chart = [{"label": o['account_type'], "value": float(o['net_balance'])} for o in out]
+    res = {"items": out, "chart": {"type":"pie", "data": chart}}
+    _cache_set(key, res)
+    return res
 
 
 def pnl(company_id: str, date_from: Optional[str], date_to: Optional[str]):
-    # Profit & Loss by account type (revenue/expense)
+    params = {"company_id": company_id, "date_from": date_from, "date_to": date_to}
+    key = _cache_key('pnl', params)
+    cached = _cache_get(key)
+    if cached is not None:
+        return cached
+
     sql = f"""
     SELECT a.code as account_code, a.name as account_name, SUM(jl.debit) as total_debit, SUM(jl.credit) as total_credit,
       SUM(jl.credit) - SUM(jl.debit) as net
@@ -174,20 +202,22 @@ def pnl(company_id: str, date_from: Optional[str], date_to: Optional[str]):
         sql += " AND je.date <= :date_to\n"
     sql += " GROUP BY a.id ORDER BY a.code"
 
-    rows = _exec_sql(sql, {"company_id": company_id, "date_from": date_from, "date_to": date_to})
+    rows = _exec_sql(sql, {"company_id": company_id, "date_from": date_from, "date_to": date_to}, prefer_read=True)
     if rows is not None:
-        return rows
+        chart = [{"label": r.get('account_code'), "value": float(r.get('net') or 0)} for r in rows]
+        res = {"items": rows, "chart": {"type":"bar", "data": chart}}
+        _cache_set(key, res)
+        return res
 
-    # Fallback in-memory
     items = []
-    # traverse entries
     for e in gl_service.list_entries({'company_id': company_id, 'date_from': date_from, 'date_to': date_to}, page=1, per_page=100000).get('items', []):
         for ln in e.get('lines',[]):
-            # find account
             acc_id = str(ln.get('account_id'))
-            # account metadata not present in in-memory service, skip grouping
             items.append({'account_id': acc_id, 'debit': ln.get('debit',0), 'credit': ln.get('credit',0)})
-    return items
+    chart = [{"label": i.get('account_id'), "value": float((i.get('credit',0)-i.get('debit',0)))} for i in items]
+    res = {"items": items, "chart": {"type":"bar","data": chart}}
+    _cache_set(key, res)
+    return res
 
 
 def cashflow(company_id: str, date_from: Optional[str], date_to: Optional[str], method: str = 'direct'):
