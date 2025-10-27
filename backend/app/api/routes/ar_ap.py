@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, Body, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Body, Request, UploadFile, File
 from typing import Optional, List
 from uuid import UUID
 from app.schemas import ar_ap as ap_schemas
