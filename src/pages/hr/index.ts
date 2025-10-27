@@ -1,0 +1,5 @@
+export { default as EmployeesPage } from './EmployeesPage'
+export { default as PayrollPage } from './PayrollPage'
+export { default as PayrollDetailsPage } from './PayrollDetailsPage'
+export { default as SalaryTemplatesPage } from './SalaryTemplatesPage'
+export { default as TaxSettingsPage } from './TaxSettingsPage'

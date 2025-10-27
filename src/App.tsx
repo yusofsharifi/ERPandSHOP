@@ -21,6 +21,11 @@ import TreasuryAccountsPage from './pages/finance/treasury/AccountsPage'
 import TreasuryTransferPage from './pages/finance/treasury/TransferPage'
 import TreasuryReconciliationPage from './pages/finance/treasury/ReconciliationPage'
 import TreasuryCashflowPage from './pages/finance/treasury/CashflowPage'
+import EmployeesPage from './pages/hr/EmployeesPage'
+import PayrollPage from './pages/hr/PayrollPage'
+import PayrollDetailsPage from './pages/hr/PayrollDetailsPage'
+import SalaryTemplatesPage from './pages/hr/SalaryTemplatesPage'
+import TaxSettingsPage from './pages/hr/TaxSettingsPage'
 import ProfilePage from './pages/ProfilePage'
 import SettingsPage from './pages/SettingsPage'
 import UsersPage from './pages/admin/UsersPage'
@@ -67,6 +72,14 @@ function App() {
               <Route path="finance/treasury/transfer" element={<TreasuryTransferPage />} />
               <Route path="finance/treasury/reconciliation" element={<TreasuryReconciliationPage />} />
               <Route path="finance/treasury/cashflow" element={<TreasuryCashflowPage />} />
+
+              {/* HR */}
+              <Route path="hr" element={<EmployeesPage />} />
+              <Route path="hr/employees" element={<EmployeesPage />} />
+              <Route path="hr/payroll" element={<PayrollPage />} />
+              <Route path="hr/payroll/:id" element={<PayrollDetailsPage />} />
+              <Route path="hr/salary-templates" element={<SalaryTemplatesPage />} />
+              <Route path="hr/tax-settings" element={<TaxSettingsPage />} />
             </Route>
             
             {/* Catch all */}
