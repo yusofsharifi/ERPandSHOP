@@ -1,0 +1,14 @@
+messages:
+  invoice_created: "فاکتور با موفقیت ایجاد شد"
+  invoice_posted: "فاکتور ثبت شد"
+  payment_recorded: "پرداخت ثبت شد"
+  credit_limit_exceeded: "حد اعتباری سررسید شده است"
+  invoice_not_found: "فاکتور یافت نشد"
+  check_not_found: "چک یافت نشد"
+  overdue_invoice_notif: "فاکتور {invoice_no} سررسید شده است"
+
+labels:
+  partners: "طرف حساب‌ها"
+  invoices: "فاکتورها"
+  payments: "پرداخت‌ها"
+  aging_report: "گزارش Aging"
