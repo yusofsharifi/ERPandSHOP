@@ -59,6 +59,7 @@ class Settings(BaseSettings):
     POSTGRES_USER: str = "postgres"
     POSTGRES_PASSWORD: str = "password"
     POSTGRES_DB: str = "topworx"
+    CACHE_TTL_SECONDS: int = 60
 
     @validator("SQLALCHEMY_DATABASE_URI", pre=True, always=True)
     def assemble_db_connection(cls, v: Optional[str], values: Dict[str, Any]) -> Any:
