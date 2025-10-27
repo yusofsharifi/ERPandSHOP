@@ -1,0 +1,32 @@
+{
+  "info": {
+    "name": "BizGenius Reports",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Trial Balance",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/finance/reports/trial-balance?company_id={{company_id}}&date_to=2025-08-31"
+      }
+    },
+    {
+      "name": "Balance Sheet",
+      "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/v1/finance/reports/balance-sheet?company_id={{company_id}}&date_to=2025-08-31" }
+    },
+    {
+      "name": "P&L",
+      "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/v1/finance/reports/pnl?company_id={{company_id}}&date_from=2025-01-01&date_to=2025-08-31" }
+    },
+    {
+      "name": "Cashflow",
+      "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/v1/finance/reports/cashflow?company_id={{company_id}}&date_from=2025-01-01&date_to=2025-08-31" }
+    },
+    {
+      "name": "Ledger",
+      "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/v1/finance/reports/ledger?company_id={{company_id}}&account_id={{account_id}}" }
+    }
+  ]
+}
