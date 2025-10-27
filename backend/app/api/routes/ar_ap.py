@@ -123,9 +123,79 @@ def invoice_pdf(invoice_id: UUID, db: Session = Depends(get_db)):
     inv = db.query(Invoice).filter(Invoice.id == invoice_id).first()
     if not inv:
         raise HTTPException(status_code=404, detail={"code":"invoice_not_found","message":{"fa":"فاکتور یافت نشد","en":"Invoice not found"}})
-    # simple text/pdf response placeholder
-    from fastapi.responses import PlainTextResponse
-    return PlainTextResponse(content=f"Invoice {inv.invoice_no} for partner {inv.partner_id}")
+    # Render simple HTML invoice for PDF printing
+    from fastapi.responses import HTMLResponse
+    html = f"<html><body><h1>Invoice {inv.invoice_no}</h1><p>Partner: {inv.partner_id}</p><p>Total: {inv.total_amount}</p></body></html>"
+    return HTMLResponse(content=html)
+
+
+# Checks endpoints
+@router.get('/checks')
+def list_checks(status: Optional[str] = Query(None), partner_id: Optional[UUID] = Query(None), db: Session = Depends(get_db)):
+    from app.models.ar_ap import Check as CheckModel
+    q = db.query(CheckModel)
+    if status:
+        q = q.filter(CheckModel.status == status)
+    if partner_id:
+        q = q.filter(CheckModel.partner_id == partner_id)
+    return q.order_by(CheckModel.due_date.asc()).all()
+
+
+@router.post('/checks', status_code=201)
+def create_check(payload: dict = Body(...), db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+    from app.models.ar_ap import Check as CheckModel
+    chk = CheckModel(
+        company_id=payload.get('company_id'),
+        partner_id=payload.get('partner_id'),
+        check_no=payload.get('check_no'),
+        bank_name=payload.get('bank_name'),
+        amount=payload.get('amount'),
+        issue_date=payload.get('issue_date'),
+        due_date=payload.get('due_date'),
+        status=payload.get('status') or 'issued',
+    )
+    db.add(chk)
+    db.commit()
+    db.refresh(chk)
+    return chk
+
+
+@router.get('/checks/{check_id}')
+def get_check(check_id: UUID, db: Session = Depends(get_db)):
+    from app.models.ar_ap import Check as CheckModel
+    chk = db.query(CheckModel).filter(CheckModel.id == check_id).first()
+    if not chk:
+        raise HTTPException(status_code=404, detail={"code":"check_not_found","message":{"fa":"چک یافت نشد","en":"Check not found"}})
+    return chk
+
+
+@router.put('/checks/{check_id}')
+def update_check(check_id: UUID, payload: dict = Body(...), db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+    from app.models.ar_ap import Check as CheckModel
+    chk = db.query(CheckModel).filter(CheckModel.id == check_id).first()
+    if not chk:
+        raise HTTPException(status_code=404, detail={"code":"check_not_found","message":{"fa":"چک یافت نشد","en":"Check not found"}})
+    for k,v in payload.items():
+        setattr(chk, k, v)
+    db.add(chk)
+    db.commit()
+    db.refresh(chk)
+    return chk
+
+
+@router.post('/checks/{check_id}/status')
+def change_check_status(check_id: UUID, status: str = Body(..., embed=True), db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+    from app.models.ar_ap import Check as CheckModel
+    chk = db.query(CheckModel).filter(CheckModel.id == check_id).with_for_update().first()
+    if not chk:
+        raise HTTPException(status_code=404, detail={"code":"check_not_found","message":{"fa":"چک یافت نشد","en":"Check not found"}})
+    # business rules: transition allowed
+    chk.status = status
+    db.add(chk)
+    db.commit()
+    db.refresh(chk)
+    # TODO: post treasury/gl entries on cleared/deposited
+    return {"code":"ok","status":status}
 
 
 @router.get("/invoices/{invoice_id}/payments")
