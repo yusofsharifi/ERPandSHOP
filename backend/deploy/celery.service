@@ -1,0 +1,15 @@
+[Unit]
+Description=Celery Worker (treasury)
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/path/to/project
+Environment="CELERY_BROKER_URL=redis://127.0.0.1:6379/0"
+ExecStart=/usr/bin/env celery -A backend.celery_app.celery_app worker -Q treasury -l info
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
