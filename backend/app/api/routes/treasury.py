@@ -106,30 +106,37 @@ from app.parsers import bank_parsers
 from app.services.reconciliation_service import create_reconciliation_from_lines, suggest_matches, apply_reconciliation
 
 @router.post('/reconciliation/upload')
-def upload_reconciliation(file: UploadFile = File(...), db: Session = Depends(get_db)):
+def upload_reconciliation(bank_account_id: UUID = Body(..., embed=True), file: UploadFile = File(...), db: Session = Depends(get_db), request=None):
     content = file.file.read().decode('utf-8')
     lines = bank_parsers.parse_csv(content)
-    # create draft reconciliation
-    # For brevity, return counts
-    return {'imported': len(lines)}
+    # create reconciliation draft
+    recon = create_reconciliation_from_lines(db, company_id=request.headers.get('X-Company-Id') if request else None, bank_account_id=bank_account_id, lines=lines, created_by=(request.headers.get('X-User-Id') if request else None))
+    return {'imported': len(lines), 'reconciliation_id': str(recon.id)}
 
 
 @router.get('/reconciliation/{id}')
 def get_reconciliation(id: UUID, db: Session = Depends(get_db)):
-    # placeholder
-    return {'id': str(id), 'status': 'draft'}
+    from app.models.treasury import BankReconciliation
+    recon = db.query(BankReconciliation).filter(BankReconciliation.id == id).first()
+    if not recon:
+        raise HTTPException(status_code=404, detail={'code':'not_found','message':{'fa':'یافت نشد','en':'Not found'}})
+    return recon
 
 
 @router.post('/reconciliation/{id}/match')
 def match_reconciliation(id: UUID, db: Session = Depends(get_db)):
-    # run heuristics - placeholder
-    return {'suggestions': []}
+    suggestions = suggest_matches(db, id)
+    return {'suggestions': suggestions}
 
 
 @router.post('/reconciliation/{id}/apply')
-def apply_reconciliation(id: UUID, db: Session = Depends(get_db)):
-    # apply matches - placeholder
-    return {'applied': True}
+def apply_reconciliation_endpoint(id: UUID, db: Session = Depends(get_db), request=None):
+    applied_by = (request.headers.get('X-User-Id') if request else None)
+    try:
+        res = apply_reconciliation(db, id, applied_by=applied_by)
+        return res
+    except KeyError:
+        raise HTTPException(status_code=404, detail={'code':'not_found','message':{'fa':'یافت نشد','en':'Not found'}})
 
 
 @router.get('/reconciliation/{id}/export')
