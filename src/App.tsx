@@ -83,6 +83,10 @@ function App() {
               <Route path="hr" element={<EmployeesPage />} />
               <Route path="hr/employees" element={<EmployeesPage />} />
               <Route path="hr/payroll" element={<PayrollPage />} />
+              <Route path="hr/payroll/periods" element={<PayrollPeriodsPage />} />
+              <Route path="hr/payroll/employees" element={<PayrollEmployeesPage />} />
+              <Route path="hr/payroll/:period_id/details" element={<PayrollPeriodDetailsPage />} />
+              <Route path="hr/payroll/:id/payslip" element={<PayrollPayslipPage />} />
               <Route path="hr/payroll/:id" element={<PayrollDetailsPage />} />
               <Route path="hr/salary-templates" element={<SalaryTemplatesPage />} />
               <Route path="hr/tax-settings" element={<TaxSettingsPage />} />
