@@ -1,97 +1,85 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
+import { Input } from '@/components/ui/Input'
 import { useTranslation } from 'react-i18next'
+import toast from 'react-hot-toast'
 
-const ReconciliationPage: React.FC = () => {
-  const { i18n, t } = useTranslation()
-  const [fileName, setFileName] = useState<string | null>(null)
-  const [mappings, setMappings] = useState<{[k:string]:string}>({ date: 'date', desc: 'description', amount: 'amount' })
-  const [previewRows, setPreviewRows] = useState<any[]>([])
-  const [matches, setMatches] = useState<any[]>([])
+export default function ReconciliationPage(){
+  const { t, i18n } = useTranslation()
+  const [file, setFile] = useState<File | null>(null)
+  const [mapping, setMapping] = useState({ date: 'date', description: 'description', amount: 'amount', reference: 'reference' })
+  const [draft, setDraft] = useState<any>({ bank_lines: [], system_candidates: [], suggestions: [] })
 
-  const onFile = async (f?: File) => {
-    if (!f) return
-    setFileName(f.name)
-    const text = await f.text()
-    // naive CSV parse first 5 lines
-    const lines = text.split('\n').slice(0,5)
-    const cols = lines[0].split(',')
-    setPreviewRows(lines.map(l=> l.split(',')))
+  const upload = async () => {
+    if (!file) return toast.error(t('treasury.upload_statement'))
+    const fd = new FormData(); fd.append('file', file)
+    const res = await fetch('/api/treasury/reconciliation/upload', { method: 'POST', body: fd })
+    if (!res.ok) return toast.error(t('error'))
+    const data = await res.json()
+    toast.success(t('success'))
+    // fetch draft - for simplicity parse client-side
+    // We'll just set draft.bank_lines length
+    setDraft({ bank_lines: new Array(data.imported||0).fill({}), system_candidates: [], suggestions: [] })
   }
 
-  const suggestMatches = async () => {
-    // mock suggestions
-    setMatches([
-      { stmt: 'TXN123', amount: '100.00', suggested: 'Match to payment 1' },
-      { stmt: 'TXN124', amount: '50.00', suggested: 'Match to payment 2' }
-    ])
+  const runMatch = async () => {
+    // placeholder: call API
+    const res = await fetch('/api/treasury/reconciliation/0000/match', { method: 'POST' })
+    if (!res.ok) return toast.error(t('error'))
+    const data = await res.json()
+    setDraft(prev => ({ ...prev, suggestions: data.suggestions || [] }))
   }
 
-  const applyReconciliation = async () => {
-    // call API to apply matches
-    alert('Applied')
+  const apply = async () => {
+    const res = await fetch('/api/treasury/reconciliation/0000/apply', { method: 'POST' })
+    if (!res.ok) return toast.error(t('error'))
+    toast.success(t('treasury.apply'))
   }
 
   return (
-    <div dir={i18n.language === 'fa' ? 'rtl' : 'ltr'}>
+    <div className={i18n.language === 'fa' ? 'font-farsi' : ''}>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-2xl font-semibold">{t('treasury.upload_statement') || 'Bank Reconciliation'}</h2>
-        <div />
+        <h2 className="text-2xl font-semibold">{t('treasury.upload_statement')}</h2>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>{t('treasury.upload_statement') || 'Upload Statement'}</CardTitle>
+          <CardTitle>{t('treasury.upload_statement')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="mb-4">
-            <input type="file" accept=".csv" onChange={(e)=> onFile(e.target.files?.[0])} />
-            {fileName && <div className="text-sm mt-2">{t('treasury.selected') || 'Selected'}: {fileName}</div>}
+            <input type="file" accept=".csv,.txt" onChange={(e:any)=> setFile(e.target.files?.[0] || null)} />
+            <div className="mt-2 flex gap-2">
+              <Button onClick={upload}>{t('treasury.upload_statement')}</Button>
+              <Button onClick={runMatch}>{t('treasury.suggest_matches')}</Button>
+              <Button variant="outline" onClick={apply}>{t('treasury.apply')}</Button>
+            </div>
           </div>
 
-          <div className="mb-4">
-            <h4 className="font-semibold mb-2">{t('treasury.field_mapping') || 'Field mapping'}</h4>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-              <div>
-                <label className="block text-sm mb-1">{t('treasury.date_field') || 'Date field'}</label>
-                <input value={mappings.date} onChange={(e)=> setMappings({...mappings, date: e.target.value})} className="p-2 border rounded w-full" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <h4 className="font-semibold mb-2">{t('treasury.upload_statement')}</h4>
+              <div className="space-y-2">
+                {draft.bank_lines.map((l:any, idx:number)=> (
+                  <div key={idx} className="p-2 border rounded">{l.statement_date || '—'} — {l.description || '—'} — {l.amount || '—'}</div>
+                ))}
+                {draft.bank_lines.length === 0 && <div className="text-sm text-muted">No bank lines</div>}
               </div>
-              <div>
-                <label className="block text-sm mb-1">{t('treasury.description_field') || 'Description field'}</label>
-                <input value={mappings.desc} onChange={(e)=> setMappings({...mappings, desc: e.target.value})} className="p-2 border rounded w-full" />
-              </div>
-              <div>
-                <label className="block text-sm mb-1">{t('treasury.amount_field') || 'Amount field'}</label>
-                <input value={mappings.amount} onChange={(e)=> setMappings({...mappings, amount: e.target.value})} className="p-2 border rounded w-full" />
+            </div>
+            <div>
+              <h4 className="font-semibold mb-2">{t('treasury.matches')}</h4>
+              <div className="space-y-2">
+                {draft.suggestions.map((s:any, idx:number)=> (
+                  <div key={idx} className="p-2 border rounded">Suggestion {idx+1}</div>
+                ))}
+                {draft.suggestions.length === 0 && <div className="text-sm text-muted">No suggestions</div>}
               </div>
             </div>
           </div>
 
-          <div className="mb-4">
-            <Button onClick={suggestMatches}>{t('treasury.suggest_matches') || 'Suggest matches'}</Button>
-          </div>
-
-          <div>
-            <h4 className="font-semibold mb-2">{t('treasury.matches') || 'Matches'}</h4>
-            <div className="space-y-2">
-              {matches.map((m, idx) => (
-                <div key={idx} className="p-2 border rounded flex justify-between">
-                  <div>{m.stmt} — {m.amount}</div>
-                  <div className="text-sm text-muted-foreground">{m.suggested}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="flex justify-end mt-4">
-            <Button variant="outline" onClick={()=> setPreviewRows([])}>{t('treasury.reset') || 'Reset'}</Button>
-            <Button onClick={applyReconciliation} className="ml-2">{t('treasury.apply') || 'Apply'}</Button>
-          </div>
         </CardContent>
       </Card>
     </div>
   )
 }
-
-export default ReconciliationPage
