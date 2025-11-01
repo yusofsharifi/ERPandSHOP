@@ -103,6 +103,7 @@ def cashflow(from_date: Optional[datetime] = Query(None), to_date: Optional[date
 
 # Reconciliation endpoints are placeholders that call parsers and services
 from app.parsers import bank_parsers
+from app.services.reconciliation_service import create_reconciliation_from_lines, suggest_matches, apply_reconciliation
 
 @router.post('/reconciliation/upload')
 def upload_reconciliation(file: UploadFile = File(...), db: Session = Depends(get_db)):
