@@ -13,7 +13,6 @@ function useDebounce(val:string, delay=300){
 }
 
 import { useAuth } from '@/contexts/AuthContext'
-import { useEffectRef } from '@/lib/utils'
 
 export default function TransferPage(){
   const { t, i18n } = useTranslation()
