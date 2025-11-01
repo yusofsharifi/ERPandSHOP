@@ -7,34 +7,59 @@ import toast from 'react-hot-toast'
 
 export default function ReconciliationPage(){
   const { t, i18n } = useTranslation()
+  const { user } = useAuth()
+  const canApply = user && (user.role === 'Admin' || String(user.role).toLowerCase().includes('treasury'))
   const [file, setFile] = useState<File | null>(null)
   const [mapping, setMapping] = useState({ date: 'date', description: 'description', amount: 'amount', reference: 'reference' })
-  const [draft, setDraft] = useState<any>({ bank_lines: [], system_candidates: [], suggestions: [] })
+  const [draft, setDraft] = useState<any>({ id: null, bank_lines: [], system_candidates: [], suggestions: [], matches: {} })
+
+  // client-side file parse for offline
+  const parseLocal = (f: File) => {
+    const reader = new FileReader()
+    reader.onload = () => {
+      const text = String(reader.result || '')
+      const lines = (window as any).backendParsers ? (window as any).backendParsers.parse_statement(text) : (window as any).Papa ? (window as any).Papa.parse(text, { header: true }).data : []
+      // normalize
+      const bl = lines.map((l:any, idx:number)=> ({ id: 'b-'+idx, statement_date: l.statement_date, description: l.description, amount: l.amount, reference: l.reference }))
+      setDraft(prev => ({ ...prev, bank_lines: bl }))
+    }
+    reader.readAsText(f)
+  }
 
   const upload = async () => {
     if (!file) return toast.error(t('treasury.upload_statement'))
-    const fd = new FormData(); fd.append('file', file)
-    const res = await fetch('/api/treasury/reconciliation/upload', { method: 'POST', body: fd })
+    // offline parse first
+    parseLocal(file)
+    const fd = new FormData(); fd.append('file', file); fd.append('bank_account_id','00000000-0000-0000-0000-000000000000')
+    const res = await fetch('/api/treasury/reconciliation/upload', { method: 'POST', body: fd, headers: {'X-User-Id': user?.id || '' , 'X-Company-Id': 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'} })
     if (!res.ok) return toast.error(t('error'))
     const data = await res.json()
     toast.success(t('success'))
-    // fetch draft - for simplicity parse client-side
-    // We'll just set draft.bank_lines length
-    setDraft({ bank_lines: new Array(data.imported||0).fill({}), system_candidates: [], suggestions: [] })
+    // fetch draft from server
+    const reconRes = await fetch(`/api/treasury/reconciliation/${data.reconciliation_id}`)
+    if (reconRes.ok){
+      const json = await reconRes.json()
+      setDraft(prev => ({ ...prev, id: json.id }))
+    }
   }
 
   const runMatch = async () => {
-    // placeholder: call API
-    const res = await fetch('/api/treasury/reconciliation/0000/match', { method: 'POST' })
+    if (!draft.id) return toast.error('No draft')
+    const res = await fetch(`/api/treasury/reconciliation/${draft.id}/match`, { method: 'POST' })
     if (!res.ok) return toast.error(t('error'))
     const data = await res.json()
     setDraft(prev => ({ ...prev, suggestions: data.suggestions || [] }))
   }
 
   const apply = async () => {
-    const res = await fetch('/api/treasury/reconciliation/0000/apply', { method: 'POST' })
+    if (!canApply) return toast.error(t('treasury.permission_denied'))
+    if (!draft.id) return toast.error('No draft')
+    const res = await fetch(`/api/treasury/reconciliation/${draft.id}/apply`, { method: 'POST', headers: {'X-User-Id': user?.id || ''} })
     if (!res.ok) return toast.error(t('error'))
+    const data = await res.json()
     toast.success(t('treasury.apply'))
+    // show preview
+    console.log('applied', data)
   }
 
   return (
