@@ -16,6 +16,7 @@ def daily_reconciliation_job():
         db.close()
 
 
+@celery_app.task(name='treasury.low_balance_check')
 def low_balance_check(threshold_map: dict):
     db = SessionLocal()
     try:
