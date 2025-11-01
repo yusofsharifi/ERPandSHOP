@@ -84,21 +84,40 @@ export default function ReconciliationPage(){
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <h4 className="font-semibold mb-2">{t('treasury.upload_statement')}</h4>
+              <h4 className="font-semibold mb-2">Bank statement</h4>
               <div className="space-y-2">
                 {draft.bank_lines.map((l:any, idx:number)=> (
-                  <div key={idx} className="p-2 border rounded">{l.statement_date || '—'} — {l.description || '—'} — {l.amount || '—'}</div>
+                  <div key={l.id} draggable className="p-2 border rounded" onDragStart={(e)=> e.dataTransfer?.setData('text/plain', l.id)}>
+                    <div className="flex justify-between"><div>{l.statement_date || '—'} — {l.description || '—'}</div><div>{l.amount || '—'}</div></div>
+                  </div>
                 ))}
                 {draft.bank_lines.length === 0 && <div className="text-sm text-muted">No bank lines</div>}
               </div>
+              <div className="mt-3">
+                <Button onClick={()=> exportReconciliationDraft(draft)}>{t('treasury.export')}</Button>
+                <Button variant="outline" onClick={()=> previewReconciliation(draft)}>{t('treasury.preview')}</Button>
+              </div>
             </div>
             <div>
-              <h4 className="font-semibold mb-2">{t('treasury.matches')}</h4>
-              <div className="space-y-2">
-                {draft.suggestions.map((s:any, idx:number)=> (
-                  <div key={idx} className="p-2 border rounded">Suggestion {idx+1}</div>
+              <h4 className="font-semibold mb-2">System transactions (drop bank line here to match)</h4>
+              <div onDragOver={(e)=> e.preventDefault()} onDrop={(e)=> handleDrop(e)} className="min-h-40 p-2 border rounded">
+                {draft.system_candidates.map((s:any, idx:number)=> (
+                  <div key={s.id} className="p-2 border rounded mb-2">
+                    <div className="flex justify-between"><div>{s.date} — {s.description}</div><div>{s.amount}</div></div>
+                    <div className="mt-1 text-sm text-muted">Matches: {(Object.values(draft.matches || {}) as any[]).filter(m=> m.txn_id === s.id).length}</div>
+                  </div>
                 ))}
-                {draft.suggestions.length === 0 && <div className="text-sm text-muted">No suggestions</div>}
+                {draft.system_candidates.length === 0 && <div className="text-sm text-muted">No system transactions</div>}
+              </div>
+
+              <div className="mt-3">
+                {draft.suggestions.map((s:any, idx:number)=> (
+                  <div key={idx} className="p-2 border rounded mb-2 flex justify-between items-center">
+                    <div>{s.line.statement_date} — {s.line.description} — {s.line.amount}</div>
+                    <div className="text-sm px-2 py-1 rounded bg-slate-100">Confidence: {s.score}</div>
+                    <div><Button size="sm" onClick={()=> applySuggestion(s)}>{t('apply')}</Button></div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
