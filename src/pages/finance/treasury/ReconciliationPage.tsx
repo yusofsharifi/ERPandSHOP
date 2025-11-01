@@ -59,7 +59,34 @@ export default function ReconciliationPage(){
     const data = await res.json()
     toast.success(t('treasury.apply'))
     // show preview
-    console.log('applied', data)
+    if (data.gl_preview) console.log('GL preview', data.gl_preview)
+  }
+
+  const handleDrop = (e:any) => {
+    const bankLineId = e.dataTransfer.getData('text/plain')
+    // for demo, attach to first system candidate
+    if (draft.system_candidates.length === 0) return
+    const targetTxn = draft.system_candidates[0]
+    setDraft(prev => ({ ...prev, matches: { ...(prev.matches||{}), [bankLineId]: { txn_id: targetTxn.id, matched_at: new Date().toISOString() } } }))
+  }
+
+  const applySuggestion = (s:any) => {
+    // apply locally
+    setDraft(prev => ({ ...prev, matches: { ...(prev.matches||{}), [s.line.id]: { txn_id: s.txn.id, score: s.score } } }))
+  }
+
+  const exportReconciliationDraft = (d:any) => {
+    const rows = (d.bank_lines || []).map((b:any)=> [b.statement_date||'', b.description||'', b.amount||''])
+    const csv = ['date,description,amount', ...rows.map(r=> r.map(c=> `"${String(c).replace(/"/g,'""')}"`).join(','))].join('\n')
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a'); a.href = url; a.download = `recon_${d.id||'draft'}.csv`; a.click(); URL.revokeObjectURL(url)
+  }
+
+  const previewReconciliation = (d:any) => {
+    const html = `<html><body><h1>Reconciliation Preview</h1><pre>${JSON.stringify(d, null, 2)}</pre></body></html>`
+    const w = window.open('', '_blank')
+    if (w) { w.document.write(html); w.document.close(); }
   }
 
   return (
