@@ -1,0 +1,29 @@
+{
+  "info": {
+    "name": "Treasury API",
+    "_postman_id": "treasury-collection",
+    "description": "Collection for Treasury endpoints (fa/en)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "List accounts",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/api/treasury/accounts", "host": ["{{baseUrl}}"], "path": ["api","treasury","accounts"] },
+        "description": {"en":"List cash and bank accounts","fa":"لیست حساب‌های نقدی و بانکی"}
+      }
+    },
+    {
+      "name": "Create transfer",
+      "request": {
+        "method": "POST",
+        "header": [{"key":"Content-Type","value":"application/json"}],
+        "body": {"mode":"raw","raw":"{\n  \"from_type\": \"cash\",\n  \"from_id\": \"<id>\",\n  \"to_type\": \"bank\",\n  \"to_id\": \"<id>\",\n  \"amount\": 100.0,\n  \"currency\": \"USD\"\n}"},
+        "url": { "raw": "{{baseUrl}}/api/treasury/transfer", "host": ["{{baseUrl}}"], "path": ["api","treasury","transfer"] },
+        "description": {"en":"Create a treasury transfer","fa":"ایجاد انتقال خزانه"}
+      }
+    }
+  ]
+}
