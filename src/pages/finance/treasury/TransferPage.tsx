@@ -54,19 +54,36 @@ export default function TransferPage(){
     return bal
   }
 
+  const { user } = useAuth()
+  const canTransfer = user && (user.role === 'Admin' || String(user.role).toLowerCase().includes('treasury'))
+
+  useEffect(()=>{
+    const handler = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        submit()
+      }
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [amount, selectedFrom, selectedTo])
+
   const submit = async () => {
+    if (!canTransfer) return toast.error(t('treasury.permission_denied') || 'Permission denied')
     if (!selectedFrom) return toast.error(t('treasury.from_account'))
     if (!selectedTo) return toast.error(t('treasury.to_account'))
     if (Number(amount) <= 0) return toast.error(t('treasury.amount'))
-    // if large amount require typed confirmation
-    if (Number(amount) > 1000000 && !confirm(`Type CONFIRM to proceed: `)) return
+    // require typed confirmation for large amounts
+    if (Number(amount) > 1000000) {
+      const typed = prompt('Type CONFIRM to proceed')
+      if (typed !== 'CONFIRM') return toast.error(t('treasury.confirm_required') || 'Confirmation required')
+    }
     setConfirmOpen(false)
     const payload:any = { from_type: fromType, from_id: selectedFrom.id, to_type: toType, to_id: selectedTo.id, amount: Number(amount), currency, exchange_rate: exchangeRate, date, reference }
     // optimistic UI
     const temp = { id: 'temp-'+Date.now(), amount: Number(amount), date, reference, posted: false }
     setPendingTxn(temp)
     try{
-      const res = await fetch('/api/treasury/transfer', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-User-Id': 'system' }, body: JSON.stringify(payload) })
+      const res = await fetch('/api/treasury/transfer', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-User-Id': user?.id || 'system', 'X-User-Roles': user?.role || '' }, body: JSON.stringify(payload) })
       if (!res.ok) throw new Error('failed')
       const data = await res.json()
       toast.success(t('success') || 'Done')
