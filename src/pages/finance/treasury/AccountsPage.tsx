@@ -1,90 +1,93 @@
 import React, { useEffect, useState } from 'react'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
+import { Input } from '@/components/ui/Input'
+import SimpleChart from '@/components/ui/SimpleChart'
 import { useTranslation } from 'react-i18next'
-
-type CashAccount = { id: string; name: string; code?: string; balance: string; currency: string }
-type BankAccount = { id: string; bank_name: string; account_number: string; balance: string; currency: string }
+import toast from 'react-hot-toast'
 
 const AccountsPage: React.FC = () => {
-  const { i18n, t } = useTranslation()
-  const [cash, setCash] = useState<CashAccount[]>([])
-  const [banks, setBanks] = useState<BankAccount[]>([])
+  const { t, i18n } = useTranslation()
+  const [accounts, setAccounts] = useState<any[]>([])
+  const [q, setQ] = useState('')
+  const [type, setType] = useState<string | ''>('')
 
-  const fetchData = async () => {
+  const fetchList = async () => {
     try {
-      const res1 = await fetch('/api/v1/treasury/cash_accounts')
-      const res2 = await fetch('/api/v1/treasury/bank_accounts')
-      const c = res1.ok ? await res1.json() : []
-      const b = res2.ok ? await res2.json() : []
-      setCash(c.items || c || [])
-      setBanks(b.items || b || [])
+      const params = new URLSearchParams()
+      if (type) params.set('type', type)
+      const res = await fetch('/api/treasury/accounts?' + params.toString())
+      if (!res.ok) throw new Error('Failed')
+      const data = await res.json()
+      setAccounts(Array.isArray(data) ? data : [])
     } catch (e) {
-      // ignore
+      console.error(e)
+      toast.error(t('error') || 'Error')
     }
   }
 
-  useEffect(() => { fetchData() }, [])
+  useEffect(() => { fetchList() }, [type])
 
-  const lowBalance = (bal: string) => {
-    try { return parseFloat(bal) < 0 }
-    catch { return false }
-  }
+  const filtered = accounts.filter(a => !q || (a.name || '').toLowerCase().includes(q.toLowerCase()) || (a.code||'').toLowerCase().includes(q.toLowerCase()))
 
   return (
-    <div dir={i18n.language === 'fa' ? 'rtl' : 'ltr'}>
+    <div className={i18n.language === 'fa' ? 'font-farsi' : ''}>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-2xl font-semibold">{t('treasury.accounts') || 'Treasury Accounts'}</h2>
-        <div />
+        <h2 className="text-2xl font-semibold">{t('treasury.accounts')}</h2>
+        <div className="flex gap-2">
+          <Button onClick={fetchList}>{t('refresh') || 'Refresh'}</Button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>{t('treasury.cash_accounts') || 'Cash Accounts'}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              {cash.length === 0 && <div className="text-sm text-muted-foreground">No cash accounts</div>}
-              {cash.map(c => (
-                <div key={c.id} className={`p-3 border rounded flex items-center justify-between ${lowBalance(c.balance) ? 'bg-red-50' : ''}`}>
-                  <div>
-                    <div className="font-medium">{c.name}</div>
-                    <div className="text-sm text-muted-foreground">{c.code || '-'}</div>
-                  </div>
-                  <div className="text-right">
-                    <div className={`font-semibold ${lowBalance(c.balance) ? 'text-destructive' : ''}`}>{c.balance} {c.currency}</div>
-                    {lowBalance(c.balance) && <div className="text-xs text-destructive">{t('treasury.low_balance') || 'Low balance'}</div>}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>{t('treasury.accounts')}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex gap-2 mb-4">
+            <Input placeholder={t('search') || 'Search...'} value={q} onChange={(e:any)=> setQ(e.target.value)} />
+            <select value={type} onChange={(e)=> setType(e.target.value)} className="p-2 border rounded">
+              <option value="">All</option>
+              <option value="cash">{t('treasury.cash_accounts')}</option>
+              <option value="bank">{t('treasury.bank_accounts')}</option>
+            </select>
+          </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>{t('treasury.bank_accounts') || 'Bank Accounts'}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              {banks.length === 0 && <div className="text-sm text-muted-foreground">No bank accounts</div>}
-              {banks.map(b => (
-                <div key={b.id} className={`p-3 border rounded flex items-center justify-between ${lowBalance(b.balance) ? 'bg-red-50' : ''}`}>
-                  <div>
-                    <div className="font-medium">{b.bank_name}</div>
-                    <div className="text-sm text-muted-foreground">{b.account_number}</div>
-                  </div>
-                  <div className="text-right">
-                    <div className={`font-semibold ${lowBalance(b.balance) ? 'text-destructive' : ''}`}>{b.balance} {b.currency}</div>
-                    {lowBalance(b.balance) && <div className="text-xs text-destructive">{t('treasury.low_balance') || 'Low balance'}</div>}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+          <div className="overflow-x-auto">
+            <table className="w-full table-auto">
+              <thead>
+                <tr className="text-left">
+                  <th className="px-2 py-1">Code</th>
+                  <th className="px-2 py-1">Name</th>
+                  <th className="px-2 py-1">Currency</th>
+                  <th className="px-2 py-1">Balance</th>
+                  <th className="px-2 py-1">Activity</th>
+                  <th className="px-2 py-1">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map(acc => (
+                  <tr key={acc.id} className="border-t">
+                    <td className="px-2 py-2">{acc.code || acc.account_number || '-'}</td>
+                    <td className="px-2 py-2">{acc.name || acc.bank_name}</td>
+                    <td className="px-2 py-2">{acc.currency}</td>
+                    <td className={"px-2 py-2 " + (acc.balance < 0 ? 'text-red-600' : acc.balance < 100 ? 'text-yellow-600' : 'text-green-600')}>{Number(acc.balance || 0).toFixed(2)}</td>
+                    <td className="px-2 py-2 w-36"><SimpleChart data={[(acc.balance||0)/10, (acc.balance||0)/8, (acc.balance||0)/6, (acc.balance||0)/4, (acc.balance||0)/2]} /></td>
+                    <td className="px-2 py-2">
+                      <div className="flex gap-2">
+                        <a className="underline text-primary" href={`/finance/treasury/accounts/${acc.id}/ledger`}>{t('ledger') || 'Ledger'}</a>
+                        <a className="underline text-primary" href={`/finance/treasury/transfer?from_id=${acc.id}`}>{t('treasury.transfer')}</a>
+                        <Button size="sm" variant="outline">{t('treasury.recharge') || 'Recharge'}</Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+                {filtered.length === 0 && <tr><td colSpan={6} className="p-4 text-center text-sm text-muted">No accounts</td></tr>}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }
