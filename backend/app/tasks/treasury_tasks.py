@@ -4,6 +4,9 @@ from app.services import treasury_service
 from app.services.notification_service import send_to_role
 
 
+from backend.celery_app import celery_app
+
+@celery_app.task(name='treasury.daily_reconciliation')
 def daily_reconciliation_job():
     db = SessionLocal()
     try:
