@@ -14,9 +14,9 @@ def test_transfer_endpoint():
     db = SessionLocal()
     try:
         comp = uuid4()
-        db.execute("INSERT INTO cash_accounts (id, company_id, code, name, currency, balance, is_active, created_at, updated_at) VALUES (uuid_generate_v4(), %s, 'TCASH', 'Test Cash', 'USD', 1000, true, now(), now())", (str(comp),))
-        db.execute("INSERT INTO bank_accounts (id, company_id, bank_name, account_number, currency, balance, is_active, created_at, updated_at) VALUES (uuid_generate_v4(), %s, 'TBank','0001','USD',500,true,now(),now())", (str(comp),))
-        db.commit()
+        from app.services.treasury_service import create_cash_account, create_bank_account
+        cash = create_cash_account(db, {'company_id': comp, 'code': 'TCASH', 'name': 'Test Cash', 'currency': 'USD', 'balance': 1000, 'is_active': True})
+        bank = create_bank_account(db, {'company_id': comp, 'bank_name': 'TBank', 'account_number': '0001', 'currency': 'USD', 'balance': 500, 'is_active': True})
     finally:
         db.close()
     # fetch accounts
@@ -27,8 +27,9 @@ def test_transfer_endpoint():
     data = res.json()
     if not data:
         pytest.skip('no accounts available')
-    a_from = data[0]
-    a_to = data[1] if len(data)>1 else data[0]
+    # find created accounts
+    a_from = next((x for x in data if x.get('code') == 'TCASH' or x.get('account_number') == '0001'), data[0])
+    a_to = next((x for x in data if x.get('account_number') == '0001' and x['id'] != a_from['id']), data[0])
 
     payload = { 'from_type': 'cash', 'from_id': a_from['id'], 'to_type': 'bank', 'to_id': a_to['id'], 'amount': 100, 'currency': 'USD' }
     r = client.post('/api/treasury/transfer', json=payload, headers={'X-User-Id':'test-user'})
