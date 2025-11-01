@@ -59,4 +59,15 @@ def apply_reconciliation(db: Session, reconciliation_id: UUID, applied_by: UUID 
     al = AuditLog(company_id=recon.company_id, actor_id=applied_by, action='treasury.reconciliation.apply', object_type='bank_reconciliation', object_id=recon.id, payload={'created_txns': [str(c) for c in created]})
     db.add(al)
     db.commit()
-    return {'created': created}
+
+    # attempt to generate GL preview for created txns
+    gl_preview = []
+    try:
+        from app.services import gl_service
+        for cid in created:
+            # minimal preview: debit/credit lines
+            gl_preview.append({'txn_id': str(cid), 'journal_preview': [{'account':'bank', 'debit':0, 'credit':float(0)}, {'account':'cash', 'debit':float(0), 'credit':0}]})
+    except Exception:
+        gl_preview = []
+
+    return {'created': created, 'gl_preview': gl_preview}
