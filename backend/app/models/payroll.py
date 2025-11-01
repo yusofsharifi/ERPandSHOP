@@ -7,10 +7,10 @@ from sqlalchemy import (
     Date,
     DateTime,
     Boolean,
-    Integer,
     Numeric,
     ForeignKey,
     JSON,
+    Text,
     UniqueConstraint,
     Index,
     CheckConstraint,
@@ -20,129 +20,171 @@ from sqlalchemy.orm import relationship
 from app.db.base import Base
 
 
+class ContractTypeEnum(str, enum.Enum):
+    permanent = "permanent"
+    contract = "contract"
+    part_time = "part_time"
+    hourly = "hourly"
+
+
 class PayrollStatusEnum(str, enum.Enum):
-    draft = 'draft'
-    computed = 'computed'
-    posted = 'posted'
+    draft = "draft"
+    validated = "validated"
+    closed = "closed"
 
 
+class PaymentStatusEnum(str, enum.Enum):
+    unpaid = "unpaid"
+    in_progress = "in_progress"
+    paid = "paid"
+
+
+class PayrollLineTypeEnum(str, enum.Enum):
+    earning = "earning"
+    deduction = "deduction"
+
+
+# Employees
 class Employee(Base):
-    __tablename__ = 'employees'
+    __tablename__ = "employees"
 
     id = Column(PGUUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    name = Column(String(255), nullable=False)
+    company_id = Column(PGUUID(as_uuid=True), nullable=False, index=True)
+    employee_code = Column(String(64), nullable=False, unique=True)
+    first_name = Column(String(255), nullable=False)
+    last_name = Column(String(255), nullable=False)
     national_id = Column(String(64), nullable=True, index=True)
-    employment_no = Column(String(64), nullable=True, unique=True)
-    bank_account = Column(String(128), nullable=True)
-    hire_date = Column(Date, nullable=True)
+    job_title = Column(String(255), nullable=True)
     department_id = Column(PGUUID(as_uuid=True), nullable=True)
-    tax_code = Column(String(64), nullable=True)
+    hire_date = Column(Date, nullable=True)
+    contract_type = Column(PG_ENUM(ContractTypeEnum, name="contract_type", create_type=False), nullable=False)
+    base_salary = Column(Numeric(18, 2), nullable=False, default=0)
+    bank_account = Column(String(128), nullable=True)
+    iban = Column(String(64), nullable=True)
     is_active = Column(Boolean, nullable=False, default=True)
     created_at = Column(DateTime(timezone=True), default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
-    payroll_lines = relationship("PayrollLine", back_populates="employee")
+    payrolls = relationship("Payroll", back_populates="employee")
 
     __table_args__ = (
-        Index('ix_employees_national_id', 'national_id'),
+        Index("ix_employees_national_id", "national_id"),
     )
 
 
+# Salary structures
 class SalaryStructure(Base):
-    __tablename__ = 'salary_structures'
-
-    id = Column(PGUUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    title = Column(String(255), nullable=False)
-    base_salary = Column(Numeric(18, 2), nullable=False, default=0)
-    allowances = Column(JSONB, nullable=True)
-    deductions = Column(JSONB, nullable=True)
-    taxable = Column(Boolean, nullable=False, default=True)
-    created_at = Column(DateTime(timezone=True), default=datetime.utcnow, nullable=False)
-
-
-class PayrollRun(Base):
-    __tablename__ = 'payroll_runs'
-
-    id = Column(PGUUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    period_start = Column(Date, nullable=False)
-    period_end = Column(Date, nullable=False)
-    generated_at = Column(DateTime(timezone=True), nullable=True)
-    status = Column(PG_ENUM(PayrollStatusEnum, name='payroll_status', create_type=False), nullable=False, default=PayrollStatusEnum.draft)
-    manager_approved = Column(Boolean, nullable=False, default=False)
-    manager_approved_by = Column(PGUUID(as_uuid=True), nullable=True)
-    manager_approved_at = Column(DateTime(timezone=True), nullable=True)
-    created_at = Column(DateTime(timezone=True), default=datetime.utcnow, nullable=False)
-
-    lines = relationship("PayrollLine", back_populates="payroll", cascade='all, delete-orphan')
-
-    __table_args__ = (
-        Index('ix_payroll_runs_period', 'period_start', 'period_end'),
-    )
-
-
-class PayrollLine(Base):
-    __tablename__ = 'payroll_lines'
-
-    id = Column(PGUUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    payroll_id = Column(PGUUID(as_uuid=True), ForeignKey('payroll_runs.id', ondelete='CASCADE'), nullable=False, index=True)
-    employee_id = Column(PGUUID(as_uuid=True), ForeignKey('employees.id', ondelete='RESTRICT'), nullable=False, index=True)
-    period_start = Column(Date, nullable=False)
-    period_end = Column(Date, nullable=False)
-    gross = Column(Numeric(18,2), nullable=False, default=0)
-    taxes = Column(Numeric(18,2), nullable=False, default=0)
-    deductions = Column(Numeric(18,2), nullable=False, default=0)
-    net = Column(Numeric(18,2), nullable=False, default=0)
-    components = Column(JSONB, nullable=True)  # snapshot of salary components
-    created_at = Column(DateTime(timezone=True), default=datetime.utcnow, nullable=False)
-
-    payroll = relationship("PayrollRun", back_populates="lines")
-    employee = relationship("Employee", back_populates="payroll_lines")
-
-    __table_args__ = (
-        UniqueConstraint('employee_id', 'period_start', 'period_end', name='uq_payroll_line_employee_period'),
-        CheckConstraint('gross >= 0', name='ck_payroll_line_gross_non_negative'),
-        CheckConstraint('net >= 0', name='ck_payroll_line_net_non_negative'),
-    )
-
-
-class PayrollJournalLink(Base):
-    __tablename__ = 'payroll_journal_links'
-
-    id = Column(PGUUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    payroll_run_id = Column(PGUUID(as_uuid=True), ForeignKey('payroll_runs.id', ondelete='CASCADE'), nullable=False, index=True)
-    journal_entry_id = Column(PGUUID(as_uuid=True), ForeignKey('journal_entries.id', ondelete='SET NULL'), nullable=True)
-    created_at = Column(DateTime(timezone=True), default=datetime.utcnow, nullable=False)
-
-    payroll_run = relationship('PayrollRun')
-
-    __table_args__ = (
-        Index('ix_payroll_journal_run', 'payroll_run_id'),
-    )
-
-
-class AttendanceRecord(Base):
-    __tablename__ = 'attendance_records'
-
-    id = Column(PGUUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    employee_id = Column(PGUUID(as_uuid=True), ForeignKey('employees.id', ondelete='CASCADE'), nullable=False, index=True)
-    date = Column(Date, nullable=False, index=True)
-    hours_worked = Column(Numeric(10,2), nullable=True, default=0)
-    absence_days = Column(Numeric(10,2), nullable=True, default=0)
-    overtime_hours = Column(Numeric(10,2), nullable=True, default=0)
-    created_at = Column(DateTime(timezone=True), default=datetime.utcnow, nullable=False)
-
-    employee = relationship('Employee')
-
-
-class PayrollRule(Base):
-    __tablename__ = 'payroll_rules'
+    __tablename__ = "salary_structures"
 
     id = Column(PGUUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name = Column(String(255), nullable=False)
-    rule_type = Column(String(50), nullable=False)  # e.g. 'tax', 'social'
-    expression = Column(String, nullable=False)  # e.g. '0.10 * gross'
-    active = Column(Boolean, nullable=False, default=True)
+    description = Column(Text, nullable=True)
+    currency = Column(String(3), nullable=False, default="IRR")
+    rules = Column(JSONB, nullable=True)  # list of components {code,name,type,amount,formula}
+    is_default = Column(Boolean, nullable=False, default=False)
     created_at = Column(DateTime(timezone=True), default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+    payrolls = relationship("Payroll", back_populates="structure")
+
+
+# Payroll periods
+class PayrollPeriod(Base):
+    __tablename__ = "payroll_periods"
+
+    id = Column(PGUUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    company_id = Column(PGUUID(as_uuid=True), nullable=False, index=True)
+    name = Column(String(255), nullable=False)
+    start_date = Column(Date, nullable=False)
+    end_date = Column(Date, nullable=False)
+    status = Column(PG_ENUM(PayrollStatusEnum, name="payroll_status", create_type=False), nullable=False, default=PayrollStatusEnum.draft)
+    created_by = Column(PGUUID(as_uuid=True), nullable=True)
+    created_at = Column(DateTime(timezone=True), default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+    payrolls = relationship("Payroll", back_populates="period")
 
     __table_args__ = (
-        Index('ix_payroll_rules_type', 'rule_type'),
+        Index("ix_payroll_periods_company_start_end", "company_id", "start_date", "end_date"),
     )
+
+
+# Payroll header
+class Payroll(Base):
+    __tablename__ = "payrolls"
+
+    id = Column(PGUUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    employee_id = Column(PGUUID(as_uuid=True), ForeignKey("employees.id", ondelete="CASCADE"), nullable=False, index=True)
+    period_id = Column(PGUUID(as_uuid=True), ForeignKey("payroll_periods.id", ondelete="CASCADE"), nullable=False, index=True)
+    structure_id = Column(PGUUID(as_uuid=True), ForeignKey("salary_structures.id", ondelete="SET NULL"), nullable=True)
+    gross_salary = Column(Numeric(18, 2), nullable=False, default=0)
+    total_deductions = Column(Numeric(18, 2), nullable=False, default=0)
+    net_salary = Column(Numeric(18, 2), nullable=False, default=0)
+    payment_status = Column(PG_ENUM(PaymentStatusEnum, name="payment_status", create_type=False), nullable=False, default=PaymentStatusEnum.unpaid)
+    journal_entry_id = Column(PGUUID(as_uuid=True), nullable=True)
+    pay_date = Column(Date, nullable=True)
+    created_at = Column(DateTime(timezone=True), default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+    employee = relationship("Employee", back_populates="payrolls")
+    period = relationship("PayrollPeriod", back_populates="payrolls")
+    structure = relationship("SalaryStructure", back_populates="payrolls")
+    lines = relationship("PayrollLine", back_populates="payroll", cascade="all, delete-orphan")
+    deductions = relationship("Deduction", back_populates="payroll", cascade="all, delete-orphan")
+    bonuses = relationship("Bonus", back_populates="payroll", cascade="all, delete-orphan")
+
+    __table_args__ = (
+        UniqueConstraint("employee_id", "period_id", name="uq_payroll_employee_period"),
+        Index("ix_payrolls_employee_period_status", "employee_id", "period_id", "payment_status"),
+    )
+
+
+# Payroll lines
+class PayrollLine(Base):
+    __tablename__ = "payroll_lines"
+
+    id = Column(PGUUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    payroll_id = Column(PGUUID(as_uuid=True), ForeignKey("payrolls.id", ondelete="CASCADE"), nullable=False, index=True)
+    code = Column(String(64), nullable=False)
+    name = Column(String(255), nullable=False)
+    type = Column(PG_ENUM(PayrollLineTypeEnum, name="payroll_line_type", create_type=False), nullable=False)
+    amount = Column(Numeric(18, 2), nullable=False, default=0)
+    formula = Column(Text, nullable=True)
+    created_at = Column(DateTime(timezone=True), default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+    payroll = relationship("Payroll", back_populates="lines")
+
+    __table_args__ = (
+        CheckConstraint("amount >= 0", name="ck_payroll_line_amount_non_negative"),
+    )
+
+
+# Deductions
+class Deduction(Base):
+    __tablename__ = "deductions"
+
+    id = Column(PGUUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    payroll_id = Column(PGUUID(as_uuid=True), ForeignKey("payrolls.id", ondelete="CASCADE"), nullable=False, index=True)
+    type = Column(String(64), nullable=False)
+    amount = Column(Numeric(18, 2), nullable=False, default=0)
+    description = Column(Text, nullable=True)
+    created_at = Column(DateTime(timezone=True), default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+    payroll = relationship("Payroll", back_populates="deductions")
+
+
+# Bonuses
+class Bonus(Base):
+    __tablename__ = "bonuses"
+
+    id = Column(PGUUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    payroll_id = Column(PGUUID(as_uuid=True), ForeignKey("payrolls.id", ondelete="CASCADE"), nullable=False, index=True)
+    type = Column(String(64), nullable=False)
+    amount = Column(Numeric(18, 2), nullable=False, default=0)
+    description = Column(Text, nullable=True)
+    created_at = Column(DateTime(timezone=True), default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+    payroll = relationship("Payroll", back_populates="bonuses")
