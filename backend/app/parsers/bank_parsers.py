@@ -24,29 +24,76 @@ def parse_csv(content: str) -> List[Dict]:
 
 
 def parse_mt940(content: str) -> List[Dict]:
-    """Very small MT940 skeleton parser. Extracts transactions from :61: tags and narrative from :86:"""
+    """Improved MT940 parser handling multiple :61: and :86: blocks.
+    Returns list of dicts with statement_date (ISO), amount (float), description, reference
+    """
     lines = content.splitlines()
     txns = []
-    curr = {}
+    curr = None
     for i, line in enumerate(lines):
+        line = line.strip()
         if line.startswith(':61:'):
-            # example: :61:1901010101D1000,00NTRFNONREF
-            m = re.match(r':61:(\d{6})(\d{4})?([CD])([0-9,\.]+)', line)
+            # capture basic parts
+            # format :61:YYMMDD[MMDD]C/Damount...optional
+            m = re.match(r':61:(\d{6})(?:\d{4})?([CD])(\d+[\d,\.]*)', line)
             if m:
-                date = m.group(1)
-                sign = m.group(3)
-                amt = m.group(4).replace(',', '.')
-                amt_f = float(amt)
-                if sign == 'D':
-                    amt_f = -amt_f
-                curr = {'statement_date': date, 'amount': amt_f, 'description': '', 'reference': ''}
-                # look ahead for :86:
-                if i+1 < len(lines) and lines[i+1].startswith(':86:'):
-                    curr['description'] = lines[i+1][4:]
+                yymmdd = m.group(1)
+                sign = m.group(2)
+                amt = m.group(3).replace(',', '.')
+                try:
+                    # convert YYMMDD to YYYY-MM-DD (approximate 20xx)
+                    yy = int(yymmdd[0:2])
+                    year = 2000 + yy if yy < 80 else 1900 + yy
+                    month = int(yymmdd[2:4])
+                    day = int(yymmdd[4:6])
+                    date_iso = f"{year:04d}-{month:02d}-{day:02d}"
+                except Exception:
+                    date_iso = None
+                try:
+                    amt_f = float(amt)
+                    if sign == 'D':
+                        amt_f = -amt_f
+                except Exception:
+                    amt_f = 0.0
+                curr = {'statement_date': date_iso, 'amount': amt_f, 'description': '', 'reference': ''}
                 txns.append(curr)
-        # else ignore
+        elif line.startswith(':86:') and curr is not None:
+            # narrative may span multiple lines until next tag
+            desc = line[4:]
+            # consume following lines that are not new tags
+            j = i+1
+            while j < len(lines) and not re.match(r'^:\d{2}:', lines[j].strip()):
+                desc += ' ' + lines[j].strip()
+                j += 1
+            curr['description'] = desc
+        else:
+            # ignore other lines
+            continue
     return txns
 
+
+def detect_statement_format(content: str) -> str:
+    """Return 'mt940' or 'csv' or 'unknown'"""
+    if ':61:' in content or ':86:' in content:
+        return 'mt940'
+    # simple CSV detection
+    first = content.strip().splitlines()[0] if content.strip() else ''
+    if ',' in first and any(h in first.lower() for h in ['date','amount','description']):
+        return 'csv'
+    return 'unknown'
+
+
+def parse_statement(content: str):
+    fmt = detect_statement_format(content)
+    if fmt == 'mt940':
+        return parse_mt940(content)
+    if fmt == 'csv':
+        return parse_csv(content)
+    # fallback to csv parse attempt
+    return parse_csv(content)
+
+
+from difflib import SequenceMatcher
 
 def simple_match_suggestions(bank_lines: List[Dict], system_txns: List[Dict]) -> List[Dict]:
     """Return list of suggestions with simple heuristics: amount exact match and date proximity.
