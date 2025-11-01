@@ -1,5 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException
-from typing import List
+from fastapi import APIRouter, Depends, HTTPException, Body, Query
+from typing import List, Optional
 from uuid import UUID
 from app.db.session import SessionLocal
 from sqlalchemy.orm import Session
@@ -8,6 +8,7 @@ from app.services.payroll_service import payroll_service
 
 router = APIRouter()
 
+
 def get_db():
     db = SessionLocal()
     try:
@@ -15,40 +16,163 @@ def get_db():
     finally:
         db.close()
 
-@router.post('/runs', response_model=payroll_schemas.PayrollRunRead)
-def create_run(payload: payroll_schemas.PayrollRunCreate, db: Session = Depends(get_db)):
-    pr = payroll_service.create_run(db, payload.period_start, payload.period_end)
-    return { 'id': pr.id, 'period_start': pr.period_start, 'period_end': pr.period_end, 'generated_at': pr.generated_at, 'status': pr.status }
 
-@router.post('/runs/{run_id}/compute', response_model=payroll_schemas.PayrollComputeResponse)
-def compute_run(run_id: UUID, payload: payroll_schemas.PayrollRunCreate = None, db: Session = Depends(get_db)):
+@router.get('/employees', response_model=List[payroll_schemas.EmployeeRead])
+def list_employees(db: Session = Depends(get_db)):
+    items = payroll_service.list_employees(db)
+    return [
+        {
+            'id': i.id,
+            'company_id': i.company_id,
+            'employee_code': i.employee_code,
+            'first_name': i.first_name,
+            'last_name': i.last_name,
+            'national_id': i.national_id,
+            'job_title': i.job_title,
+            'department_id': i.department_id,
+            'hire_date': i.hire_date,
+            'contract_type': str(i.contract_type) if getattr(i,'contract_type',None) else None,
+            'base_salary': i.base_salary,
+            'bank_account': i.bank_account,
+            'iban': i.iban,
+            'is_active': i.is_active,
+        }
+        for i in items
+    ]
+
+
+@router.post('/structure', response_model=payroll_schemas.SalaryStructureRead, status_code=201)
+def create_structure(payload: payroll_schemas.SalaryStructureCreate, db: Session = Depends(get_db)):
+    s = payroll_service.create_or_update_structure(db, payload)
+    return {
+        'id': s.id,
+        'name': s.name,
+        'description': s.description,
+        'currency': s.currency,
+        'rules': s.rules,
+        'is_default': s.is_default,
+        'created_at': s.created_at,
+    }
+
+
+@router.put('/structure/{structure_id}', response_model=payroll_schemas.SalaryStructureRead)
+def update_structure(structure_id: UUID, payload: payroll_schemas.SalaryStructureCreate, db: Session = Depends(get_db)):
     try:
-        emp_ids = payload.employee_ids if payload else None
-        res = payroll_service.compute_run(db, run_id, employee_ids=emp_ids)
-        return { 'payroll_id': res['payroll_id'], 'lines_generated': res['lines_generated'] }
+        s = payroll_service.create_or_update_structure(db, payload, struct_id=structure_id)
+        return {
+            'id': s.id,
+            'name': s.name,
+            'description': s.description,
+            'currency': s.currency,
+            'rules': s.rules,
+            'is_default': s.is_default,
+            'created_at': s.created_at,
+        }
     except KeyError:
-        raise HTTPException(status_code=404, detail={'code':'payroll_run_not_found','message':{'fa':'اجرای حقوق یافت نشد','en':'Payroll run not found'}})
-    except ValueError as e:
-        if str(e) == 'cannot_compute_non_draft':
-            raise HTTPException(status_code=409, detail={'code':'cannot_compute_non_draft','message':{'fa':'قابل محاسبه نیست','en':'Cannot compute non-draft payroll'}})
-        raise HTTPException(status_code=400, detail={'code':'validation_error','message':{'fa':str(e),'en':str(e)}})
+        raise HTTPException(status_code=404, detail={'code':'structure_not_found','message':{'fa':'ساختار حقوق یافت نشد','en':'Salary structure not found'}})
 
-@router.get('/runs')
-def list_runs(db: Session = Depends(get_db)):
-    items = payroll_service.list_runs(db)
-    return [ { 'id': r.id, 'period_start': r.period_start, 'period_end': r.period_end, 'generated_at': r.generated_at, 'status': r.status } for r in items ]
 
-@router.get('/runs/{run_id}/lines', response_model=List[payroll_schemas.PayrollLineRead])
-def list_lines(run_id: UUID, db: Session = Depends(get_db)):
-    lines = payroll_service.list_lines(db, run_id)
-    return [ { 'id': l.id, 'payroll_id': l.payroll_id, 'employee_id': l.employee_id, 'period_start': l.period_start, 'period_end': l.period_end, 'gross': l.gross, 'taxes': l.taxes, 'deductions': l.deductions, 'net': l.net, 'components': l.components } for l in lines ]
+@router.get('/periods', response_model=List[payroll_schemas.PayrollPeriodRead])
+def list_periods(db: Session = Depends(get_db)):
+    items = payroll_service.list_periods(db)
+    return [
+        {
+            'id': p.id,
+            'company_id': p.company_id,
+            'name': p.name,
+            'start_date': p.start_date,
+            'end_date': p.end_date,
+            'status': str(p.status),
+            'created_by': p.created_by,
+            'created_at': p.created_at,
+        }
+        for p in items
+    ]
 
-@router.post('/runs/{run_id}/post')
-def post_run(run_id: UUID, db: Session = Depends(get_db)):
+
+@router.post('/periods', response_model=payroll_schemas.PayrollPeriodRead, status_code=201)
+def create_period(payload: payroll_schemas.PayrollPeriodCreate, db: Session = Depends(get_db)):
+    p = payroll_service.create_period(db, payload)
+    return {
+        'id': p.id,
+        'company_id': p.company_id,
+        'name': p.name,
+        'start_date': p.start_date,
+        'end_date': p.end_date,
+        'status': str(p.status),
+        'created_by': p.created_by,
+        'created_at': p.created_at,
+    }
+
+
+@router.post('/periods/{period_id}/generate')
+def generate_period(period_id: UUID, db: Session = Depends(get_db)):
     try:
-        res = payroll_service.post_run(db, run_id)
-        return { 'code': 'ok', 'message': {'fa':'پست انجام شد','en':'Payroll posted'}, 'journal_entry_id': res.get('journal_entry_id') }
+        res = payroll_service.generate_for_period(db, period_id)
+        return {'code':'ok','message':{'fa':'تولید شد','en':'Generated'}, 'generated': res.get('generated'), 'payrolls_created': res.get('payrolls_created')}
     except KeyError:
-        raise HTTPException(status_code=404, detail={'code':'payroll_run_not_found','message':{'fa':'اجرای حقوق یافت نشد','en':'Payroll run not found'}})
+        raise HTTPException(status_code=404, detail={'code':'period_not_found','message':{'fa':'دوره یافت نشد','en':'Period not found'}})
     except ValueError as e:
-        raise HTTPException(status_code=400, detail={'code':'validation_error','message':{'fa':str(e),'en':str(e)}})
+        raise HTTPException(status_code=400, detail={'code':str(e),'message':{'fa':str(e),'en':str(e)}})
+
+
+@router.get('/{payroll_id}')
+def payroll_detail(payroll_id: UUID, db: Session = Depends(get_db)):
+    try:
+        res = payroll_service.get_payroll_detail(db, payroll_id)
+        p = res['payroll']
+        return {
+            'payroll': {
+                'id': p.id,
+                'employee_id': p.employee_id,
+                'period_id': p.period_id,
+                'structure_id': p.structure_id,
+                'gross_salary': p.gross_salary,
+                'total_deductions': p.total_deductions,
+                'net_salary': p.net_salary,
+                'payment_status': str(p.payment_status),
+                'pay_date': p.pay_date,
+                'created_at': p.created_at,
+            },
+            'lines': [
+                { 'id': l.id, 'code': l.code, 'name': l.name, 'type': str(l.type), 'amount': l.amount, 'formula': l.formula } for l in res['lines']
+            ],
+            'deductions': [ { 'id': d.id, 'type': d.type, 'amount': d.amount, 'description': d.description } for d in res['deductions'] ],
+            'bonuses': [ { 'id': b.id, 'type': b.type, 'amount': b.amount, 'description': b.description } for b in res['bonuses'] ],
+        }
+    except KeyError:
+        raise HTTPException(status_code=404, detail={'code':'payroll_not_found','message':{'fa':'حقوق یافت نشد','en':'Payroll not found'}})
+
+
+@router.post('/{payroll_id}/validate')
+def validate_payroll(payroll_id: UUID, db: Session = Depends(get_db)):
+    try:
+        res = payroll_service.validate_payroll(db, payroll_id)
+        return {'code':'ok','message':{'fa':'تایید شد','en':'Validated'}, 'journal_entry_id': res.get('journal_entry_id')}
+    except KeyError:
+        raise HTTPException(status_code=404, detail={'code':'payroll_not_found','message':{'fa':'حقوق یافت نشد','en':'Payroll not found'}})
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail={'code':str(e),'message':{'fa':str(e),'en':str(e)}})
+
+
+@router.post('/{payroll_id}/pay')
+def pay_payroll(payroll_id: UUID, pay_date: Optional[date] = Body(None), db: Session = Depends(get_db)):
+    try:
+        res = payroll_service.pay_payroll(db, payroll_id, pay_date=pay_date)
+        return {'code':'ok','message':{'fa':'پرداخت شد','en':'Paid'}, 'journal_entry_id': res.get('journal_entry_id')}
+    except KeyError:
+        raise HTTPException(status_code=404, detail={'code':'payroll_not_found','message':{'fa':'حقوق یافت نشد','en':'Payroll not found'}})
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail={'code':str(e),'message':{'fa':str(e),'en':str(e)}})
+
+
+@router.get('/report')
+def payroll_report(company_id: Optional[UUID] = Query(None), period_id: Optional[UUID] = Query(None), department_id: Optional[UUID] = Query(None), db: Session = Depends(get_db)):
+    query = payroll_schemas.PayrollReportQuery(company_id=company_id, period_id=period_id, department_id=department_id)
+    res = payroll_service.payroll_report(db, query)
+    return {
+        'rows': [ { 'key': r['key'], 'gross': r['gross'], 'deductions': r['deductions'], 'net': r['net'] } for r in res['rows'] ],
+        'total_gross': res['total_gross'],
+        'total_deductions': res['total_deductions'],
+        'total_net': res['total_net'],
+    }
