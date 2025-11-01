@@ -96,34 +96,41 @@ def parse_statement(content: str):
 from difflib import SequenceMatcher
 
 def simple_match_suggestions(bank_lines: List[Dict], system_txns: List[Dict]) -> List[Dict]:
-    """Return list of suggestions with simple heuristics: amount exact match and date proximity.
-    Score: 1.0 exact amount/date, 0.7 amount/date within 1 day, 0.5 description token overlap
-    """
+    """Return list of suggestions with heuristics: amount match, date proximity, reference, and fuzzy description match."""
     suggestions = []
     for b in bank_lines:
-        best = None
         for s in system_txns:
             score = 0.0
             try:
-                if abs(float(b.get('amount',0)) - float(s.get('amount',0))) < 0.001:
+                # amount exact or near
+                amt_b = float(b.get('amount',0))
+                amt_s = float(s.get('amount',0))
+                if abs(amt_b - amt_s) < 0.001:
+                    score += 0.5
+                elif abs(amt_b - amt_s) / max(abs(amt_s),1) < 0.01:
+                    score += 0.3
+
+                # reference exact match
+                if b.get('reference') and s.get('reference') and str(b.get('reference')).strip() == str(s.get('reference')).strip():
                     score += 0.6
-                # date proximity (if dates in YYYYMMDD or ISO)
+
+                # date proximity: exact day or within 1 day
                 bd = str(b.get('statement_date',''))
                 sd = str(s.get('date',''))
-                if bd and sd and bd[:6] == sd[:6]:
-                    score += 0.4
-                # description token overlap
-                b_tokens = set(str(b.get('description','')).lower().split())
-                s_tokens = set(str(s.get('description','')).lower().split())
-                if b_tokens and s_tokens:
-                    overlap = len(b_tokens & s_tokens)
-                    if overlap > 0:
-                        score += min(0.3, overlap / max(len(b_tokens),1) * 0.3)
+                if bd and sd and bd == sd:
+                    score += 0.3
+                elif bd and sd and bd[:10] == sd[:10]:
+                    score += 0.2
+
+                # fuzzy description similarity
+                b_desc = str(b.get('description','')).lower()
+                s_desc = str(s.get('description','') or s.get('reference','')).lower()
+                if b_desc and s_desc:
+                    ratio = SequenceMatcher(None, b_desc, s_desc).ratio()
+                    score += min(0.4, ratio * 0.4)
             except Exception:
                 pass
             if score > 0:
-                cand = {'line': b, 'txn': s, 'score': round(score,2)}
-                suggestions.append(cand)
-    # sort by score desc
+                suggestions.append({'line': b, 'txn': s, 'score': round(score,2)})
     suggestions.sort(key=lambda x: x['score'], reverse=True)
     return suggestions
