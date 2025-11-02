@@ -73,3 +73,43 @@ async def get_cache_or_compute(key: str, compute_fn: Callable[[], Any], ttl: Opt
     result = compute_fn()
     _cache.set(key, result, ttl_use)
     return result
+
+
+# Synchronous invalidate helpers used by background tasks
+
+def invalidate_cache_prefix_sync(prefix: str):
+    # try redis sync via redis-py if available
+    try:
+        import redis
+        r = redis.from_url(settings.REDIS_URL or f"redis://{settings.REDIS_HOST}:{settings.REDIS_PORT}")
+        # scan for keys
+        cursor = '0'
+        keys = []
+        for key in r.scan_iter(match=prefix + '*'):
+            keys.append(key)
+        if keys:
+            r.delete(*keys)
+        return True
+    except Exception:
+        # fallback to in-memory
+        with _cache.lock:
+            to_delete = [k for k in _cache.store.keys() if k.startswith(prefix)]
+            for k in to_delete:
+                del _cache.store[k]
+        return False
+
+
+async def invalidate_cache_prefix_async(prefix: str):
+    redis = await get_redis()
+    if redis:
+        try:
+            cursor = b'0'
+            async for key in redis.scan_iter(prefix + '*'):
+                await redis.delete(key)
+            return True
+        except Exception:
+            return False
+    else:
+        # fallback to sync invalidate
+        invalidate_cache_prefix_sync(prefix)
+        return False
