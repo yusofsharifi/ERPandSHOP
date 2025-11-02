@@ -27,6 +27,14 @@ def refresh_materialized(self, view_name: Optional[str]=None, company_id: Option
                         # fallback to non-concurrent
                         logger.warning(f"Concurrent refresh failed for {v}: {e}, trying non-concurrent")
                         conn.execute(f"REFRESH MATERIALIZED VIEW {v};")
+        # invalidate relevant cache keys (sync)
+        try:
+            from app.utils.cache import invalidate_cache_prefix_sync
+            # common prefixes used: trial_balance:, ledger:
+            invalidate_cache_prefix_sync('trial_balance:')
+            invalidate_cache_prefix_sync('ledger:')
+        except Exception:
+            logger.exception('cache invalidation failed')
         return {'ok': True, 'refreshed': view_name or views}
     except Exception as e:
         logger.exception('refresh failed')
