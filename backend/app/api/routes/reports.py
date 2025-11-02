@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, BackgroundTasks, Request
+from fastapi.responses import FileResponse
 from typing import Optional
-from app.api.deps import get_db, get_locale, role_required
+from app.api.deps import get_db, get_locale, role_required, get_current_user
 from app.services.reports_service import reports_service
 from app.schemas import reports as reports_schemas
 from app.core.config import settings
@@ -8,6 +9,8 @@ from app.tasks.reports_tasks import export_report, refresh_materialized
 from app.celery_app import celery_app
 from app.db.session import get_engine
 from sqlalchemy.orm import Session
+import os, json
+from app.utils.drill_token import generate_drill_token, verify_drill_token
 
 router = APIRouter(prefix='/reports')
 
