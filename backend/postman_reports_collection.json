@@ -1,0 +1,46 @@
+{
+  "info": {
+    "name": "Reports API",
+    "_postman_id": "reports-collection",
+    "description": "Basic collection for Financial Reports endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Trial Balance",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/v1/finance/reports/trial-balance?company_id={{company_id}}&as_of_date=2025-08-31",
+          "host": ["{{base_url}}"],
+          "path": ["api","v1","finance","reports","trial-balance"],
+          "query": [
+            {"key":"company_id","value":"{{company_id}}"},
+            {"key":"as_of_date","value":"2025-08-31"}
+          ]
+        }
+      }
+    },
+    {
+      "name": "Ledger",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/api/v1/finance/reports/ledger?company_id={{company_id}}&account_id={{account_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["api","v1","finance","reports","ledger"],
+          "query": [
+            {"key":"company_id","value":"{{company_id}}"},
+            {"key":"account_id","value":"{{account_id}}"}
+          ]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {"key":"base_url","value":"http://localhost:8000"},
+    {"key":"company_id","value":""},
+    {"key":"account_id","value":""}
+  ]
+}
