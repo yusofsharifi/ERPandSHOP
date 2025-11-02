@@ -57,6 +57,20 @@ def export_report(self, report_type: str, params: dict, company_id: Optional[str
         with open(path, 'w') as f:
             f.write('export_type,params\n')
             f.write(f"{report_type},{params}\n")
+        # write metadata file mapping job id to params (so download can validate owner)
+        meta = {
+            'job_id': str(self.request.id),
+            'report_type': report_type,
+            'params': params,
+            'company_id': company_id,
+        }
+        meta_path = os.path.join(out_dir, f"{self.request.id}.meta.json")
+        try:
+            import json
+            with open(meta_path, 'w') as mf:
+                json.dump(meta, mf)
+        except Exception:
+            logger.exception('failed to write meta file')
         return {'ok': True, 'path': path}
     except Exception as e:
         logger.exception('export failed')
