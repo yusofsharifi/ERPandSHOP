@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, Body, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Body, Request
 from typing import Optional, List
 from uuid import UUID
+from datetime import datetime
 from app.schemas.customers import CustomerCreate, CustomerRead, CustomerUpdate, CustomerNoteCreate, CustomerTransactionCreate
 from app.services.customer_service import customer_service
 from app.db.session import SessionLocal
