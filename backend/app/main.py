@@ -35,6 +35,12 @@ def on_startup():
     # Initialize DB (create tables)
     init_db()
 
+# Prometheus metrics
+from app.metrics import metrics_endpoint
+@app.get('/metrics')
+def metrics():
+    return metrics_endpoint()
+
 
 if __name__ == "__main__":
     import uvicorn
