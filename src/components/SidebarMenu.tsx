@@ -27,6 +27,7 @@ const SidebarMenu = ({ onClose }: SidebarMenuProps) => {
   const { logout, user } = useAuth()
   const { t, i18n } = useTranslation()
   const location = useLocation()
+  const navigate = useNavigate()
   const isRTL = i18n.language === 'fa'
 
   const menuItems = [
