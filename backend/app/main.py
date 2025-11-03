@@ -27,6 +27,7 @@ app.include_router(finance_gl.router, prefix=settings.API_V1_STR + "/finance", t
 app.include_router(reports.router, prefix=settings.API_V1_STR + "/finance", tags=["reports"])
 app.include_router(ar_ap.router, prefix=settings.API_V1_STR + "/arap", tags=["arap"])
     app.include_router(customers.router, prefix=settings.API_V1_STR + "/customers", tags=["customers"])
+    app.include_router(invoices.router, prefix=settings.API_V1_STR + "/invoices", tags=["invoices"])
     app.include_router(treasury.router, prefix=settings.API_V1_STR + "/treasury", tags=["treasury"])
     app.include_router(payroll.router, prefix=settings.API_V1_STR + "/payroll", tags=["payroll"])
     app.include_router(hr.router, prefix=settings.API_V1_STR + "/hr", tags=["hr"])
