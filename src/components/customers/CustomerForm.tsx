@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react'
-import React, { useState, useEffect } from 'react'
 import Modal from '@/components/ui/Modal'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
@@ -67,7 +66,7 @@ const CustomerForm: React.FC<{ open: boolean; setOpen: (v:boolean)=>void; onCrea
           </div>
           {contacts.map((c, idx) => (
             <div key={idx} className="flex gap-2 items-center mt-2">
-              <Input placeholder={i18n.language==='fa' ? 'نام مخاطب' : 'Contact name'} value={c.contact_name} onChange={(e:any)=> updateContact(idx,'contact_name',e.target.value)} />
+              <Input placeholder={i18n.language==='fa' ? 'نام م��اطب' : 'Contact name'} value={c.contact_name} onChange={(e:any)=> updateContact(idx,'contact_name',e.target.value)} />
               <Input placeholder={i18n.language==='fa' ? 'تلفن' : 'Phone'} value={c.phone} onChange={(e:any)=> updateContact(idx,'phone',e.target.value)} />
               <Button size="sm" variant="destructive" onClick={()=> removeContact(idx)}>{i18n.language==='fa' ? 'حذف' : 'Remove'}</Button>
             </div>
