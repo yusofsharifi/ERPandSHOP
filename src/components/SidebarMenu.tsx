@@ -30,16 +30,20 @@ const SidebarMenu = ({ onClose }: SidebarMenuProps) => {
   const isRTL = i18n.language === 'fa'
 
   const menuItems = [
-    { icon: Home, label: t('dashboard'), path: '/dashboard' },
-    { icon: Users, label: 'Users', path: '/users' },
-    { icon: Users, label: 'Roles', path: '/roles', adminOnly: true },
-    { icon: DollarSign, label: 'Finance', path: '/finance' },
-    { icon: Package, label: 'Inventory', path: '/inventory' },
-    { icon: Users, label: 'CRM', path: '/crm' },
-    { icon: Building2, label: 'HR', path: '/hr' },
-    { icon: BarChart3, label: 'Analytics', path: '/analytics' },
-    { icon: Bell, label: 'Notifications', path: '/notifications' },
-    { icon: Store, label: 'E-Commerce', path: '/ecommerce' },
+    { icon: Home, label: t('nav.dashboard', 'Dashboard'), path: '/dashboard' },
+    { icon: Users, label: t('nav.users', 'Users'), path: '/users' },
+    { icon: Users, label: t('nav.roles', 'Roles'), path: '/roles', adminOnly: true },
+    { icon: DollarSign, label: t('nav.finance', 'Finance'), path: '/finance' },
+    { icon: Package, label: t('nav.inventory', 'Inventory'), path: '/inventory' },
+    { icon: Users, label: t('nav.crm', 'CRM'), path: '/crm' },
+    { icon: Building2, label: t('nav.hr', 'HR'), path: '/hr' },
+    { icon: BarChart3, label: t('nav.analytics', 'Analytics'), path: '/analytics' },
+    { icon: Bell, label: t('nav.notifications', 'Notifications'), path: '/notifications' },
+    { icon: Store, label: t('nav.ecommerce', 'E-Commerce'), path: '/ecommerce' },
+    // Sales group
+    { icon: DollarSign, label: t('nav.sales', 'Sales'), path: '/sales' },
+    { icon: Package, label: t('nav.sales_orders', 'Sales Orders'), path: '/sales/orders' },
+    { icon: Store, label: t('nav.sales_invoices', 'Sales Invoices'), path: '/sales/invoices' },
   ]
 
   const settingsItems = [
