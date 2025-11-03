@@ -78,6 +78,7 @@ function App() {
               <Route path="settings" element={<SettingsPage />} />
               <Route path="admin/system-settings" element={<SystemSettingsPage />} />
               {/* Finance */}
+              <Route path="finance" element={<FinancePage />} />
               <Route path="finance/accounts" element={<AccountsPage />} />
               <Route path="finance/journal-entries" element={<JournalEntriesPage />} />
               <Route path="finance/journal-entries/new" element={<JournalEntryNewPage />} />
@@ -91,6 +92,10 @@ function App() {
               <Route path="finance/invoices/new" element={<InvoiceNewPage />} />
               <Route path="finance/invoices/:id" element={<InvoiceViewPage />} />
               <Route path="finance/payments" element={<PaymentsPage />} />
+              <Route path="inventory" element={<InventoryPage />} />
+              <Route path="crm" element={<CrmPage />} />
+              <Route path="analytics" element={<AnalyticsPage />} />
+              <Route path="ecommerce" element={<EcommercePage />} />
 
               {/* Sales invoices (new UI) */}
               <Route path="sales/invoices" element={<SalesInvoicesPage />} />
