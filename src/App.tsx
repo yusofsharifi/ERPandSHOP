@@ -82,6 +82,11 @@ function App() {
               <Route path="finance/invoices/:id" element={<InvoiceViewPage />} />
               <Route path="finance/payments" element={<PaymentsPage />} />
 
+              {/* Sales invoices (new UI) */}
+              <Route path="sales/invoices" element={<SalesInvoicesPage />} />
+              <Route path="sales/invoices/new" element={<SalesInvoiceNewPage />} />
+              <Route path="sales/invoices/:id" element={<SalesInvoiceDetailPage />} />
+
               {/* Treasury */}
               <Route path="finance/treasury/accounts" element={<TreasuryAccountsPage />} />
               <Route path="finance/treasury/transfer" element={<TreasuryTransferPage />} />
