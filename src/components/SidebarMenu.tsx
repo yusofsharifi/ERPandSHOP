@@ -125,22 +125,20 @@ const SidebarMenu = ({ onClose }: SidebarMenuProps) => {
           <div className="space-y-1">
             {settingsItems.map((item) => {
               if ((item as any).adminOnly && user?.role !== 'Admin') return null
+              const active = location.pathname === item.path || location.pathname.startsWith(item.path + '/')
               return (
-                <NavLink
+                <button
                   key={item.path}
-                  to={item.path}
-                  onClick={onClose}
-                  className={({ isActive }) =>
-                    `flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${
-                      isRTL ? 'space-x-reverse' : ''
-                    } ${
-                      isActive ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-                    }`
-                  }
+                  onClick={() => {
+                    window.history.pushState({}, '', item.path)
+                    window.dispatchEvent(new PopStateEvent('popstate'))
+                    onClose()
+                  }}
+                  className={`w-full text-left flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${isRTL ? 'space-x-reverse' : ''} ${active ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground hover:bg-muted'}`}
                 >
                   <item.icon className="h-4 w-4" />
                   <span className="text-sm font-medium">{item.label}</span>
-                </NavLink>
+                </button>
               )
             })}
           </div>
