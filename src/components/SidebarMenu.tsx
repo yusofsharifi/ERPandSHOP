@@ -40,8 +40,6 @@ const SidebarMenu = ({ onClose }: SidebarMenuProps) => {
     { icon: BarChart3, label: t('nav.analytics', 'Analytics'), path: '/analytics' },
     { icon: Bell, label: t('nav.notifications', 'Notifications'), path: '/notifications' },
     { icon: Store, label: t('nav.ecommerce', 'E-Commerce'), path: '/ecommerce' },
-    // Sales group
-    { icon: DollarSign, label: t('nav.sales', 'Sales'), path: '/sales' },
     { icon: Package, label: t('nav.sales_orders', 'Sales Orders'), path: '/sales/orders' },
     { icon: Store, label: t('nav.sales_invoices', 'Sales Invoices'), path: '/sales/invoices' },
   ]
@@ -106,11 +104,10 @@ const SidebarMenu = ({ onClose }: SidebarMenuProps) => {
               <button
                 key={item.path}
                 onClick={() => {
-                  // navigate programmatically to avoid relative path issues
-                  window.history.pushState({}, '', item.path)
-                  // dispatch popstate so react-router picks it up
-                  window.dispatchEvent(new PopStateEvent('popstate'))
-                  onClose()
+                  const nav = navigate || ((p:string)=>{ window.history.pushState({}, '', p); window.dispatchEvent(new PopStateEvent('popstate')) })
+                  nav(item.path)
+                  // close sidebar only on small screens
+                  if (typeof window !== 'undefined' && window.innerWidth < 1024) onClose()
                 }}
                 className={`w-full text-left flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${isRTL ? 'space-x-reverse' : ''} ${active ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground hover:bg-muted'}`}
               >
@@ -130,9 +127,9 @@ const SidebarMenu = ({ onClose }: SidebarMenuProps) => {
                 <button
                   key={item.path}
                   onClick={() => {
-                    window.history.pushState({}, '', item.path)
-                    window.dispatchEvent(new PopStateEvent('popstate'))
-                    onClose()
+                    const nav = navigate || ((p:string)=>{ window.history.pushState({}, '', p); window.dispatchEvent(new PopStateEvent('popstate')) })
+                    nav(item.path)
+                    if (typeof window !== 'undefined' && window.innerWidth < 1024) onClose()
                   }}
                   className={`w-full text-left flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${isRTL ? 'space-x-reverse' : ''} ${active ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground hover:bg-muted'}`}
                 >
