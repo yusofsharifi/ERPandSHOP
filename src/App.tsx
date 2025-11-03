@@ -87,6 +87,11 @@ function App() {
               <Route path="sales/invoices/new" element={<SalesInvoiceNewPage />} />
               <Route path="sales/invoices/:id" element={<SalesInvoiceDetailPage />} />
 
+              {/* Sales orders (new UI) */}
+              <Route path="sales/orders" element={<React.Suspense fallback={<div/>}><React.Fragment><RouteWrapper component={require('./pages/sales/orders/index').default} /></React.Fragment></React.Suspense>} />
+              <Route path="sales/orders/new" element={<React.Suspense fallback={<div/>}><RouteWrapper component={require('./pages/sales/orders/new').default} /></React.Suspense>} />
+              <Route path="sales/orders/:id" element={<React.Suspense fallback={<div/>}><RouteWrapper component={require('./pages/sales/orders/[id]').default} /></React.Suspense>} />
+
               {/* Treasury */}
               <Route path="finance/treasury/accounts" element={<TreasuryAccountsPage />} />
               <Route path="finance/treasury/transfer" element={<TreasuryTransferPage />} />
