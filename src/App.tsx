@@ -41,6 +41,7 @@ import SystemSettingsPage from './pages/admin/SystemSettingsPage'
 import RolesPage from './pages/admin/RolesPage'
 import NotificationsPage from './pages/admin/NotificationsPage'
 import { Routes, Route, Navigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 function App() {
   const { i18n } = useTranslation()
