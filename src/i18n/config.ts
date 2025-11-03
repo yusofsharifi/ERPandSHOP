@@ -94,6 +94,23 @@ const resources = {
       'treasury.description_field': 'Description field',
       'treasury.amount_field': 'Amount field',
       'treasury.cashflow': 'Cash Flow',
+      // Navigation labels
+      'nav.dashboard': 'Dashboard',
+      'nav.users': 'Users',
+      'nav.roles': 'Roles',
+      'nav.finance': 'Finance',
+      'nav.inventory': 'Inventory',
+      'nav.crm': 'CRM',
+      'nav.hr': 'HR',
+      'nav.analytics': 'Analytics',
+      'nav.notifications': 'Notifications',
+      'nav.ecommerce': 'E-Commerce',
+      'nav.sales': 'Sales',
+      'nav.sales_orders': 'Sales Orders',
+      'nav.sales_invoices': 'Sales Invoices',
+      'nav.profile': 'Profile',
+      'nav.settings': 'Settings',
+      'nav.system_settings': 'System Settings',
     }
   },
   fa: {
@@ -185,7 +202,24 @@ const resources = {
       'treasury.date_field': 'فیلد تاریخ',
       'treasury.description_field': 'فیلد شرح',
       'treasury.amount_field': 'فیلد مبلغ',
-      'treasury.cashflow': 'جریان نقدی'
+      'treasury.cashflow': 'جریان نقدی',
+      // Navigation labels
+      'nav.dashboard': 'داشبورد',
+      'nav.users': 'کاربران',
+      'nav.roles': 'نقش‌ها',
+      'nav.finance': 'مالی',
+      'nav.inventory': 'انبار',
+      'nav.crm': 'CRM',
+      'nav.hr': 'منابع انسانی',
+      'nav.analytics': 'تحلیل',
+      'nav.notifications': 'اعلان‌ها',
+      'nav.ecommerce': 'فروشگاه',
+      'nav.sales': 'فروش',
+      'nav.sales_orders': 'سفارشات فروش',
+      'nav.sales_invoices': 'فاکتورهای فروش',
+      'nav.profile': 'پروفایل',
+      'nav.settings': 'تنظیمات',
+      'nav.system_settings': 'تنظیمات سیستم',
     }
   }
 }
