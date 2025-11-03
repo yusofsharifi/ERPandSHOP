@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import { Modal } from '@/components/ui/Modal'
+import React, { useState, useEffect } from 'react'
+import Modal from '@/components/ui/Modal'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
 import { useTranslation } from 'react-i18next'
@@ -47,7 +48,7 @@ const CustomerForm: React.FC<{ open: boolean; setOpen: (v:boolean)=>void; onCrea
 
   if (!open) return null
   return (
-    <Modal open={open} setOpen={setOpen} title={i18n.language==='fa' ? 'فرم مشتری' : 'Customer Form'}>
+    <Modal open={open} onOpenChange={setOpen} title={i18n.language==='fa' ? 'فرم مشتری' : 'Customer Form'}>
       <div className="grid grid-cols-1 gap-2">
         <Input placeholder={i18n.language==='fa' ? 'نام' : 'Name'} value={name} onChange={(e:any)=> setName(e.target.value)} />
         <Input placeholder={i18n.language==='fa' ? 'تلفن' : 'Mobile'} value={mobile} onChange={(e:any)=> setMobile(e.target.value)} />
