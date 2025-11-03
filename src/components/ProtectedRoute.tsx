@@ -18,7 +18,11 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     )
   }
 
-  if (!isAuthenticated) {
+  // Allow temporary bypass for testing pages without login.
+  // Enable by adding ?noauth=1 to the URL or setting localStorage.setItem('bypassAuth','1').
+  const bypass = typeof window !== 'undefined' && (new URLSearchParams(window.location.search).get('noauth') === '1' || window.localStorage.getItem('bypassAuth') === '1')
+
+  if (!isAuthenticated && !bypass) {
     // Redirect to login page with return url
     return <Navigate to="/login" state={{ from: location }} replace />
   }
