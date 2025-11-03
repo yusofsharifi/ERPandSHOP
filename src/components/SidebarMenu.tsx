@@ -47,10 +47,10 @@ const SidebarMenu = ({ onClose }: SidebarMenuProps) => {
   ]
 
   const settingsItems = [
-    { icon: User, label: t('profile'), path: '/profile' },
-    { icon: Settings, label: t('settings'), path: '/settings' },
+    { icon: User, label: t('nav.profile', 'Profile'), path: '/profile' },
+    { icon: Settings, label: t('nav.settings', 'Settings'), path: '/settings' },
     // System Settings - visible to admins
-    { icon: Settings, label: 'System Settings', path: '/admin/system-settings', adminOnly: true },
+    { icon: Settings, label: t('nav.system_settings', 'System Settings'), path: '/admin/system-settings', adminOnly: true },
   ]
 
   const handleLogout = () => {
