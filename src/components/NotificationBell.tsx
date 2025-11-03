@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/Button'
 import { Bell, X } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
