@@ -1,12 +1,12 @@
 import React from 'react'
 import CustomerForm from '@/components/customers/CustomerForm'
-import { useRouter } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 const NewCustomerPage: React.FC = () => {
-  const router = useRouter()
+  const navigate = useNavigate()
   return (
     <div>
-      <CustomerForm open={true} setOpen={() => router.push('/customers')} onCreated={() => router.push('/customers')} />
+      <CustomerForm open={true} setOpen={() => navigate('/customers')} onCreated={() => navigate('/customers')} />
     </div>
   )
 }
