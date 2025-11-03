@@ -71,6 +71,9 @@ function App() {
               <Route path="finance/reports/trial-balance" element={<TrialBalancePage />} />
               <Route path="finance/partners" element={<PartnersPage />} />
               <Route path="finance/partners/:id/aging" element={<PartnerAgingPage />} />
+              <Route path="customers" element={<CustomersPage />} />
+              <Route path="customers/new" element={<NewCustomerPage />} />
+              <Route path="customers/:id" element={<CustomerDetailPage />} />
               <Route path="finance/invoices" element={<InvoicesPage />} />
               <Route path="finance/invoices/new" element={<InvoiceNewPage />} />
               <Route path="finance/invoices/:id" element={<InvoiceViewPage />} />
