@@ -217,7 +217,7 @@ const resources = {
       'treasury.preview_balance': 'پیش‌نمایش موجودی پس از انتقال',
       'treasury.reset': 'بازنشانی',
       'treasury.confirm_transfer': 'تأیید انتقال',
-      'treasury.are_you_sure_transfer': 'آ��ا از انجام انتقال مطمئن هستید؟',
+      'treasury.are_you_sure_transfer': 'آیا از انجام انتقال مطمئن هستید؟',
       'treasury.suggest_matches': 'پیشنهاد تطبیق‌ها',
       'treasury.matches': 'تطبیق‌ها',
       'treasury.apply': 'اعمال',
@@ -261,6 +261,15 @@ const resources = {
       'no_invoices': 'فاکتوری یافت نشد',
       'view': 'مشاهده',
       'apply_payment': 'ثبت پرداخت',
+      'invoice_no': 'شماره فاکتور',
+      'partner': 'طرف حساب',
+      'date': 'تاریخ',
+      'due': 'سررسید',
+      'type': 'نوع',
+      'total': 'جمع',
+      'balance': 'مانده',
+      'status': 'وضعیت',
+      'actions': 'عملیات',
     }
   }
 }
