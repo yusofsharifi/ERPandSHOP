@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import JournalLinesTable from '@/components/finance/JournalLinesTable'
 import TotalsBar from '@/components/finance/TotalsBar'
 import PostConfirmationModal from '@/components/finance/PostConfirmationModal'
@@ -6,6 +7,8 @@ import { Button } from '@/components/ui/Button'
 import { useTranslation } from 'react-i18next'
 import { API_BASE_URL } from '@/lib/utils'
 import toast from 'react-hot-toast'
+import CustomerLookup from '@/components/invoices/CustomerLookup'
+import AccountSelect from '@/components/finance/AccountSelect'
 
 export default function JournalEntryNewPage(){
   const { t } = useTranslation()
