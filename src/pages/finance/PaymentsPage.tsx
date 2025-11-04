@@ -7,10 +7,15 @@ interface Payment { id: number; amount: string; method: string; payment_date: st
 const PaymentsPage: React.FC = () => {
   const [items, setItems] = useState<Payment[]>([])
   const fetchList = async () => {
-    const res = await fetch('/api/v1/arap/payments')
-    if (!res.ok) return setItems([])
-    const data = await res.json()
-    setItems(data)
+    try {
+      const res = await fetch('/api/v1/arap/payments')
+      if (!res.ok) { setItems([]); return }
+      const data = await res.json()
+      setItems(data)
+    } catch (err) {
+      console.error('Failed to fetch payments', err)
+      setItems([])
+    }
   }
   useEffect(() => { fetchList() }, [])
   return (
