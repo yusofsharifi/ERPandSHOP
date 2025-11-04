@@ -5,12 +5,14 @@ import { Link } from 'react-router-dom'
 import { Input } from '@/components/ui/Input'
 import toast from 'react-hot-toast'
 import { useAuth } from '@/contexts/AuthContext'
+import { useTranslation } from 'react-i18next'
 
 interface Invoice { id: string; invoice_no: string; date: string; due_date?: string | null; total_amount: number | string; balance_amount: number | string; status: string; invoice_type: string; partner_id?: string; partner_name?: string }
 interface Partner { id: string; name: string }
 
 const InvoicesPage: React.FC = () => {
   const { user } = useAuth()
+  const { t, i18n } = useTranslation()
   const [items, setItems] = useState<Invoice[]>([])
   const [loading, setLoading] = useState(false)
   const [type, setType] = useState<string | undefined>(undefined)
@@ -142,15 +144,15 @@ const InvoicesPage: React.FC = () => {
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-2xl font-semibold">Invoices</h2>
+        <h2 className="text-2xl font-semibold">{t('finance.invoices') || 'Invoices'}</h2>
         <div className="flex items-center gap-2">
-          <Link to="/finance/invoices/new"><Button>New Invoice</Button></Link>
+          <Link to="/finance/invoices/new"><Button>{t('new_invoice') || 'New Invoice'}</Button></Link>
         </div>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Invoice list</CardTitle>
+          <CardTitle>{t('finance.invoices') || 'Invoice list'}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col md:flex-row gap-2 mb-4">
@@ -187,12 +189,12 @@ const InvoicesPage: React.FC = () => {
               <Input type="date" value={startDate || ''} onChange={(e)=> setStartDate(e.target.value || undefined)} />
               <Input type="date" value={endDate || ''} onChange={(e)=> setEndDate(e.target.value || undefined)} />
 
-              <Button variant="outline" onClick={fetchList} disabled={loading}>{loading ? 'Loading...' : 'Refresh'}</Button>
+              <Button variant="outline" onClick={fetchList} disabled={loading}>{loading ? (t('loading')||'Loading...') : (t('refresh')||'Refresh')}</Button>
             </div>
 
             <div className="ml-auto flex gap-2 items-center">
-              <Button variant="ghost" onClick={() => exportCSV(false)}>Export All</Button>
-              <Button variant="ghost" onClick={() => exportCSV(true)}>Export Selected</Button>
+              <Button variant="ghost" onClick={() => exportCSV(false)}>{t('export_all') || 'Export All'}</Button>
+              <Button variant="ghost" onClick={() => exportCSV(true)}>{t('export_selected') || 'Export Selected'}</Button>
               {user && (user.role || '').toLowerCase() === 'admin' && (
                 <Button variant="destructive" onClick={markCancelled}>Mark Cancelled</Button>
               )}
@@ -204,15 +206,15 @@ const InvoicesPage: React.FC = () => {
               <thead>
                 <tr className="text-left">
                   <th className="px-2 py-1"><input type="checkbox" checked={selectAll} onChange={toggleSelectAll} aria-label="Select all"/></th>
-                  <th className="px-2 py-1">Invoice #</th>
-                  <th className="px-2 py-1">Partner</th>
-                  <th className="px-2 py-1">Date</th>
-                  <th className="px-2 py-1">Due</th>
-                  <th className="px-2 py-1">Type</th>
-                  <th className="px-2 py-1">Total</th>
-                  <th className="px-2 py-1">Balance</th>
-                  <th className="px-2 py-1">Status</th>
-                  <th className="px-2 py-1">Actions</th>
+                  <th className="px-2 py-1">{t('invoice_no') || 'Invoice #'}</th>
+                  <th className="px-2 py-1">{t('partner') || 'Partner'}</th>
+                  <th className="px-2 py-1">{t('date') || 'Date'}</th>
+                  <th className="px-2 py-1">{t('due') || 'Due'}</th>
+                  <th className="px-2 py-1">{t('type') || 'Type'}</th>
+                  <th className="px-2 py-1">{t('total') || 'Total'}</th>
+                  <th className="px-2 py-1">{t('balance') || 'Balance'}</th>
+                  <th className="px-2 py-1">{t('status') || 'Status'}</th>
+                  <th className="px-2 py-1">{t('actions') || 'Actions'}</th>
                 </tr>
               </thead>
               <tbody>
@@ -229,14 +231,14 @@ const InvoicesPage: React.FC = () => {
                     <td className="px-2 py-2">{inv.status}</td>
                     <td className="px-2 py-2">
                       <div className="flex gap-2">
-                        <Link to={`/finance/invoices/${inv.id}`} className="text-primary underline">View</Link>
-                        {inv.status !== 'paid' && <Link to={`/finance/invoices/${inv.id}`} className="text-muted underline">Apply Payment</Link>}
+                        <Link to={`/finance/invoices/${inv.id}`} className="text-primary underline">{t('view') || 'View'}</Link>
+                        {inv.status !== 'paid' && <Link to={`/finance/invoices/${inv.id}`} className="text-muted underline">{t('apply_payment') || 'Apply Payment'}</Link>}
                       </div>
                     </td>
                   </tr>
                 ))}
                 {visibleItems.length === 0 && (
-                  <tr><td colSpan={10} className="p-4 text-center text-sm text-muted">No invoices found</td></tr>
+                  <tr><td colSpan={10} className="p-4 text-center text-sm text-muted">{t('no_invoices') || 'No invoices found'}</td></tr>
                 )}
               </tbody>
             </table>
