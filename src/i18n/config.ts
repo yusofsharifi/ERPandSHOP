@@ -118,6 +118,15 @@ const resources = {
       'finance.balance_sheet': 'Balance Sheet',
       'finance.profit_loss': 'Profit & Loss',
       'finance.post': 'Post',
+      // Common actions
+      'add': 'Add',
+      'refresh': 'Refresh',
+      'export_all': 'Export All',
+      'export_selected': 'Export Selected',
+      'new_invoice': 'New Invoice',
+      'no_invoices': 'No invoices found',
+      'view': 'View',
+      'apply_payment': 'Apply Payment',
     }
   },
   fa: {
@@ -180,7 +189,7 @@ const resources = {
       'gl.labels.debit': 'بدهکار',
       'gl.labels.credit': 'بستانکار',
       'gl.labels.account': 'سرفصل',
-      'gl.error.not_balanced': 'جمع بدهکاری و بستانکاری برابر نیست',
+      'gl.error.not_balanced': 'جمع بدهکاری و بستان��اری برابر نیست',
       'gl.success.entry_saved': 'سند ذخیره شد',
       'finance.journal_new': 'سند جدید',
       'finance.journal_list': 'اسناد حسابداری',
@@ -234,6 +243,15 @@ const resources = {
       'finance.balance_sheet': 'ترازنامه',
       'finance.profit_loss': 'سود و زیان',
       'finance.post': 'ثبت',
+      // Common actions
+      'add': 'افزودن',
+      'refresh': 'بروزرسانی',
+      'export_all': 'صادرات همه',
+      'export_selected': 'صادرات انتخاب‌شده',
+      'new_invoice': 'فاکتور جدید',
+      'no_invoices': 'فاکتوری یافت نشد',
+      'view': 'مشاهده',
+      'apply_payment': 'ثبت پرداخت',
     }
   }
 }
