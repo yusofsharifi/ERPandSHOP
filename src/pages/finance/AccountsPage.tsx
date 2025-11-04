@@ -3,7 +3,10 @@ import { API_BASE_URL } from '@/lib/utils'
 import { Button } from '@/components/ui/Button'
 import ChartOfAccounts from '@/components/finance/ChartOfAccounts'
 
+import { useTranslation } from 'react-i18next'
+
 export default function AccountsPage(){
+  const { t } = useTranslation()
   const [accounts, setAccounts] = useState<any[]>([])
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState({ company_id: '00000000-0000-0000-0000-000000000000', code:'', name:'', type:'asset', currency:'IRR', status:'active', description:'', parent_code: '' })
@@ -55,9 +58,9 @@ export default function AccountsPage(){
   return (
     <div className="p-4">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-bold">Chart of Accounts</h2>
+        <h2 className="text-lg font-bold">{t('finance.chart_of_accounts') || 'Chart of Accounts'}</h2>
         <div>
-          <Button onClick={()=> setShowForm(true)}>Add Account</Button>
+          <Button onClick={()=> setShowForm(true)}>{t('add') || 'Add Account'}</Button>
         </div>
       </div>
 
@@ -81,7 +84,7 @@ export default function AccountsPage(){
           <ChartOfAccounts accounts={accounts} onToggle={toggleDisable} onEdit={editAccount} />
         </div>
         <div>
-          <h3 className="text-sm font-semibold mb-2">Accounts list</h3>
+          <h3 className="text-sm font-semibold mb-2">{t('finance.accounts') || 'Accounts'}</h3>
           <div className="overflow-auto border rounded bg-card p-2 max-h-96">
             <table className="w-full table-auto">
               <thead><tr><th className="p-1 text-left">Code</th><th className="p-1 text-left">Name</th><th className="p-1">Type</th><th className="p-1">Status</th></tr></thead>
