@@ -13,6 +13,8 @@ import AccountsPage from './pages/finance/AccountsPage'
 import JournalEntriesPage from './pages/finance/JournalEntriesPage'
 import JournalEntryNewPage from './pages/finance/JournalEntryNewPage'
 import TrialBalancePage from './pages/finance/TrialBalancePage'
+import BalanceSheetPage from './pages/finance/BalanceSheetPage'
+import ProfitLossPage from './pages/finance/ProfitLossPage'
 import PartnersPage from './pages/finance/PartnersPage'
 import CustomersPage from './pages/customers/index'
 import NewCustomerPage from './pages/customers/new'
@@ -83,6 +85,8 @@ function App() {
               <Route path="finance/journal-entries" element={<JournalEntriesPage />} />
               <Route path="finance/journal-entries/new" element={<JournalEntryNewPage />} />
               <Route path="finance/reports/trial-balance" element={<TrialBalancePage />} />
+              <Route path="finance/reports/balance-sheet" element={<BalanceSheetPage />} />
+              <Route path="finance/reports/profit-loss" element={<ProfitLossPage />} />
               <Route path="finance/partners" element={<PartnersPage />} />
               <Route path="finance/partners/:id/aging" element={<PartnerAgingPage />} />
               <Route path="customers" element={<CustomersPage />} />
