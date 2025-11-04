@@ -59,7 +59,7 @@ const InvoiceViewPage: React.FC = () => {
       </div>
       <Card>
         <CardHeader>
-          <CardTitle>{i18n.language === 'fa' ? 'جزئیات فاکتور' : 'Invoice Details'}</CardTitle>
+          <CardTitle>{t('invoice_details') || (i18n.language === 'fa' ? 'جزئیات فاکتور' : 'Invoice Details')}</CardTitle>
         </CardHeader>
         <CardContent>
           {!inv && <div>{i18n.language === 'fa' ? 'در حال بارگذاری...' : 'Loading...'}</div>}
