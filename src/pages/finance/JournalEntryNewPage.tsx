@@ -114,7 +114,7 @@ export default function JournalEntryNewPage(){
   return (
     <div className="space-y-4 p-4">
       <h2 className="text-xl font-bold">{t('finance.journal_new') || 'New Journal Entry'}</h2>
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
         <div>
           <label className="text-sm">{t('gl.labels.date') || 'Date'}</label>
           <input type="date" value={date} onChange={(e)=> setDate(e.target.value)} className="input" />
@@ -124,8 +124,62 @@ export default function JournalEntryNewPage(){
           <input type="number" value={fiscalYear} onChange={(e)=> setFiscalYear(Number(e.target.value))} className="input" />
         </div>
         <div>
-          <label className="text-sm">{t('gl.labels.description') || 'Description'}</label>
-          <input value={description} onChange={(e)=> setDescription(e.target.value)} className="input" />
+          <label className="text-sm">Reference No</label>
+          <input value={reference} onChange={(e)=> setReference(e.target.value)} className="input" />
+        </div>
+
+        <div>
+          <label className="text-sm">Document Type</label>
+          <select value={documentType} onChange={(e)=> setDocumentType(e.target.value)} className="input">
+            <option value="journal">Journal</option>
+            <option value="adjustment">Adjustment</option>
+            <option value="reversal">Reversal</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="text-sm">Currency</label>
+          <select value={currency} onChange={(e)=> setCurrency(e.target.value)} className="input">
+            <option>USD</option>
+            <option>EUR</option>
+            <option>IRR</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="text-sm">Exchange Rate</label>
+          <input type="number" value={exchangeRate} onChange={(e)=> setExchangeRate(Number(e.target.value))} className="input" />
+        </div>
+
+        <div className="md:col-span-2">
+          <label className="text-sm">Partner (Customer / Vendor)</label>
+          <CustomerLookup onSelect={(id,name)=> { setPartnerId(id); setPartnerName(name) }} />
+          {partnerName && <div className="text-sm mt-1">Selected: {partnerName}</div>}
+        </div>
+
+        <div>
+          <label className="text-sm">Tax Amount</label>
+          <input type="number" value={taxAmount} onChange={(e)=> setTaxAmount(Number(e.target.value))} className="input" />
+        </div>
+
+        <div>
+          <label className="text-sm">Cost Center</label>
+          <input value={costCenter} onChange={(e)=> setCostCenter(e.target.value)} className="input" />
+        </div>
+
+        <div>
+          <label className="text-sm">Project</label>
+          <input value={project} onChange={(e)=> setProject(e.target.value)} className="input" />
+        </div>
+
+        <div>
+          <label className="text-sm">Department</label>
+          <input value={department} onChange={(e)=> setDepartment(e.target.value)} className="input" />
+        </div>
+
+        <div className="md:col-span-3">
+          <label className="text-sm">Internal Notes</label>
+          <textarea value={internalNotes} onChange={(e)=> setInternalNotes(e.target.value)} className="input h-24" />
         </div>
       </div>
 
