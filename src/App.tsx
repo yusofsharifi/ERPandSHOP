@@ -93,6 +93,9 @@ function App() {
               <Route path="finance/invoices/:id" element={<InvoiceViewPage />} />
               <Route path="finance/payments" element={<PaymentsPage />} />
               <Route path="inventory" element={<InventoryPage />} />
+              <Route path="inventory/products" element={React.lazy(()=> import('./pages/inventory/products/index'))} />
+              <Route path="inventory/products/new" element={React.lazy(()=> import('./pages/inventory/products/new'))} />
+              <Route path="inventory/stock" element={React.lazy(()=> import('./pages/inventory/stock'))} />
               <Route path="crm" element={<CrmPage />} />
               <Route path="analytics" element={<AnalyticsPage />} />
               <Route path="ecommerce" element={<EcommercePage />} />
