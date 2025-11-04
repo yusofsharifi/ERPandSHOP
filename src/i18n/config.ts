@@ -118,6 +118,16 @@ const resources = {
       'finance.balance_sheet': 'Balance Sheet',
       'finance.profit_loss': 'Profit & Loss',
       'finance.post': 'Post',
+      // Extra UI
+      'invoice': 'Invoice',
+      'invoice_details': 'Invoice Details',
+      'invoice_wizard': 'Invoice Wizard',
+      'lines': 'Lines',
+      'payments': 'Payments',
+      'print': 'Print',
+      'back': 'Back',
+      'next': 'Next',
+      'create': 'Create',
       // Common actions
       'add': 'Add',
       'refresh': 'Refresh',
