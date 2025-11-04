@@ -144,41 +144,29 @@ const SidebarMenu = ({ onClose }: SidebarMenuProps) => {
           {menuItems.map((item, idx) => {
             // group with children
             if (item.children && Array.isArray(item.children)) {
-              const [openGroups, setOpenGroups] = [undefined, undefined] // placeholder to avoid re-declaration
+              const isOpen = openIndex === idx
               return (
                 <div key={idx} className="space-y-1">
                   <button
-                    onClick={() => {
-                      // toggle via dataset on element to persist minimal state without complex hooks
-                      const el = document.getElementById(`group-toggle-${idx}`)
-                      const isOpen = el?.getAttribute('data-open') === '1'
-                      if (el) el.setAttribute('data-open', isOpen ? '0' : '1')
-                      // simple navigate to parent path if provided
-                      if (item.path) {
-                        navigate(item.path)
-                        if (typeof window !== 'undefined' && window.innerWidth < 1024) onClose()
-                      }
-                      // force reflow for active classes
-                      try { window.dispatchEvent(new PopStateEvent('popstate')) } catch(e){}
-                    }}
-                    id={`group-toggle-${idx}`}
-                    data-open="0"
-                    className={`w-full text-left flex items-center justify-between px-3 py-2 rounded-lg transition-colors ${isRTL ? 'space-x-reverse' : ''} ${location.pathname.startsWith(item.path || '/') ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground hover:bg-muted'}`}
+                    onClick={() => setOpenIndex(isOpen ? null : idx)}
+                    className={`w-full text-left flex items-center justify-between px-3 py-2 rounded-lg transition-colors ${isRTL ? 'space-x-reverse' : ''} ${location.pathname.startsWith(item.path || '/') || isOpen ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground hover:bg-muted'}`}
                   >
                     <div className="flex items-center space-x-3">
                       <item.icon className="h-4 w-4" />
                       <span className="text-sm font-medium">{item.label}</span>
                     </div>
-                    <ChevronDown className="h-4 w-4" />
+                    <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
                   </button>
 
-                  <div className="pl-6 space-y-1" aria-hidden>
-                    {item.children.map((child:any) => (
-                      <button key={child.path} onClick={() => { navigate(child.path); if (typeof window !== 'undefined' && window.innerWidth < 1024) onClose() }} className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${location.pathname === child.path ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground hover:bg-muted'}`}>
-                        <span className="text-sm">{child.label}</span>
-                      </button>
-                    ))}
-                  </div>
+                  {isOpen && (
+                    <div className="pl-6 space-y-1">
+                      {item.children.map((child:any) => (
+                        <button key={child.path} onClick={() => { navigate(child.path); if (typeof window !== 'undefined' && window.innerWidth < 1024) onClose() }} className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${location.pathname === child.path ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground hover:bg-muted'}`}>
+                          <span className="text-sm">{child.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )
             }
