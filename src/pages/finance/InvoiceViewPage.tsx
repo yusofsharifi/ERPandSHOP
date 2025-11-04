@@ -65,7 +65,7 @@ const InvoiceViewPage: React.FC = () => {
           {!inv && <div>{i18n.language === 'fa' ? 'در حال بارگذاری...' : 'Loading...'}</div>}
           {inv && (
             <div>
-              <div className="mb-2">{i18n.language === 'fa' ? 'شماره' : 'Number'}: {inv.invoice_no}</div>
+              <div className="mb-2">{t('invoice_no') || (i18n.language === 'fa' ? 'شماره' : 'Number')}: {inv.invoice_no}</div>
               <div className="mb-2">{i18n.language === 'fa' ? 'تاریخ' : 'Date'}: {inv.date}</div>
               <div className="mb-2">{i18n.language === 'fa' ? 'وضعیت' : 'Status'}: {inv.status}</div>
               <div className="mb-4">{i18n.language === 'fa' ? 'جمع' : 'Total'}: {inv.total_amount} — {i18n.language === 'fa' ? 'مانده' : 'Balance'}: {inv.balance_amount}</div>
