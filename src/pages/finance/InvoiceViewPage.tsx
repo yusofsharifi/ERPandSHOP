@@ -68,7 +68,7 @@ const InvoiceViewPage: React.FC = () => {
               <div className="mb-2">{t('invoice_no') || (i18n.language === 'fa' ? 'شماره' : 'Number')}: {inv.invoice_no}</div>
               <div className="mb-2">{t('date') || (i18n.language === 'fa' ? 'تاریخ' : 'Date')}: {inv.date}</div>
               <div className="mb-2">{t('status') || (i18n.language === 'fa' ? 'وضعیت' : 'Status')}: {inv.status}</div>
-              <div className="mb-4">{i18n.language === 'fa' ? 'جمع' : 'Total'}: {inv.total_amount} — {i18n.language === 'fa' ? 'مانده' : 'Balance'}: {inv.balance_amount}</div>
+              <div className="mb-4">{t('total') || (i18n.language === 'fa' ? 'جمع' : 'Total')}: {inv.total_amount} — {t('balance') || (i18n.language === 'fa' ? 'مانده' : 'Balance')}: {inv.balance_amount}</div>
               <h4 className="font-semibold mb-2">{i18n.language === 'fa' ? 'سطرها' : 'Lines'}</h4>
               <div className="space-y-2">
                 {inv.lines.map((l: any) => (
