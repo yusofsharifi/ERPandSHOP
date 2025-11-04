@@ -32,19 +32,49 @@ const SidebarMenu = ({ onClose }: SidebarMenuProps) => {
   const navigate = useNavigate()
   const isRTL = i18n.language === 'fa'
 
-  const menuItems = [
+  const menuItems: any[] = [
     { icon: Home, label: t('nav.dashboard', 'Dashboard'), path: '/dashboard' },
     { icon: Users, label: t('nav.users', 'Users'), path: '/users' },
     { icon: Users, label: t('nav.roles', 'Roles'), path: '/roles', adminOnly: true },
-    { icon: DollarSign, label: t('nav.finance', 'Finance'), path: '/finance' },
-    { icon: Package, label: t('nav.inventory', 'Inventory'), path: '/inventory' },
+    {
+      icon: DollarSign,
+      label: t('nav.finance', 'Finance'),
+      children: [
+        { label: t('nav.finance', 'Finance'), path: '/finance' },
+        { label: 'Accounts', path: '/finance/accounts' },
+        { label: 'Journal Entries', path: '/finance/journal-entries' },
+        { label: 'Invoices', path: '/finance/invoices' },
+      ],
+    },
+    {
+      icon: Package,
+      label: t('nav.inventory', 'Inventory'),
+      children: [
+        { label: 'Products', path: '/inventory/products' },
+        { label: 'Stock Levels', path: '/inventory/stock' },
+      ],
+    },
     { icon: Users, label: t('nav.crm', 'CRM'), path: '/crm' },
-    { icon: Building2, label: t('nav.hr', 'HR'), path: '/hr' },
+    {
+      icon: Building2,
+      label: t('nav.hr', 'HR'),
+      children: [
+        { label: 'Employees', path: '/hr/employees' },
+        { label: 'Payroll', path: '/hr/payroll' },
+      ],
+    },
     { icon: BarChart3, label: t('nav.analytics', 'Analytics'), path: '/analytics' },
     { icon: Bell, label: t('nav.notifications', 'Notifications'), path: '/notifications' },
     { icon: Store, label: t('nav.ecommerce', 'E-Commerce'), path: '/ecommerce' },
-    { icon: Package, label: t('nav.sales_orders', 'Sales Orders'), path: '/sales/orders' },
-    { icon: Store, label: t('nav.sales_invoices', 'Sales Invoices'), path: '/sales/invoices' },
+    // Sales group
+    {
+      icon: DollarSign,
+      label: t('nav.sales', 'Sales'),
+      children: [
+        { label: t('nav.sales_orders', 'Sales Orders'), path: '/sales/orders' },
+        { label: t('nav.sales_invoices', 'Sales Invoices'), path: '/sales/invoices' },
+      ],
+    },
   ]
 
   const settingsItems = [
