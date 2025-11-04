@@ -111,6 +111,13 @@ const resources = {
       'nav.profile': 'Profile',
       'nav.settings': 'Settings',
       'nav.system_settings': 'System Settings',
+      // Finance UI
+      'finance.accounts': 'Accounts',
+      'finance.invoices': 'Invoices',
+      'finance.chart_of_accounts': 'Chart of Accounts',
+      'finance.balance_sheet': 'Balance Sheet',
+      'finance.profit_loss': 'Profit & Loss',
+      'finance.post': 'Post',
     }
   },
   fa: {
@@ -220,6 +227,13 @@ const resources = {
       'nav.profile': 'پروفایل',
       'nav.settings': 'تنظیمات',
       'nav.system_settings': 'تنظیمات سیستم',
+      // Finance UI
+      'finance.accounts': 'حساب‌ها',
+      'finance.invoices': 'فاکتورها',
+      'finance.chart_of_accounts': 'درخت حساب‌ها',
+      'finance.balance_sheet': 'ترازنامه',
+      'finance.profit_loss': 'سود و زیان',
+      'finance.post': 'ثبت',
     }
   }
 }
