@@ -14,9 +14,16 @@ export default function JournalEntriesPage(){
   const navigate = useNavigate()
 
   const fetchList = async ()=>{
-    const res = await fetch(`${API_BASE_URL}/api/v1/finance/journal-entries?per_page=50&company_id=00000000-0000-0000-0000-000000000000`)
-    const d = await res.json()
-    setItems(d.items || [])
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/v1/finance/journal-entries?per_page=50&company_id=00000000-0000-0000-0000-000000000000`)
+      if (!res.ok) { setItems([]); toast.error(t('error') || 'Failed to load'); return }
+      const d = await res.json()
+      setItems(d.items || [])
+    } catch (err) {
+      console.error('Failed to fetch journal entries', err)
+      setItems([])
+      toast.error(t('error') || 'Failed to load')
+    }
   }
 
   useEffect(()=>{ fetchList() }, [])
