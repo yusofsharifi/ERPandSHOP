@@ -51,15 +51,16 @@ const SidebarMenu = ({ onClose }: SidebarMenuProps) => {
       label: t('nav.finance', 'Finance'),
       children: [
         { label: t('nav.finance', 'Finance'), path: '/finance' },
-        { label: 'Accounts', path: '/finance/accounts' },
-        { label: 'Journal Entries', path: '/finance/journal-entries' },
-        { label: 'Invoices', path: '/finance/invoices' },
+        { label: t('finance.accounts', 'Accounts'), path: '/finance/accounts' },
+        { label: t('finance.journal_list', 'Journal Entries'), path: '/finance/journal-entries' },
+        { label: t('finance.invoices', 'Invoices'), path: '/finance/invoices' },
       ],
     },
     {
       icon: Package,
       label: t('nav.inventory', 'Inventory'),
       children: [
+        { label: t('nav.inventory', 'Inventory'), path: '/inventory' },
         { label: 'Products', path: '/inventory/products' },
         { label: 'Stock Levels', path: '/inventory/stock' },
       ],
