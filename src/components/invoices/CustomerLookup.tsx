@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Input } from '@/components/ui/Input'
 
 const CustomerLookup: React.FC<{ onSelect: (id:string, name:string)=>void }> = ({ onSelect }) => {
