@@ -32,6 +32,16 @@ const SidebarMenu = ({ onClose }: SidebarMenuProps) => {
   const navigate = useNavigate()
   const isRTL = i18n.language === 'fa'
 
+  // Accordion: only one group open at a time
+  const [openIndex, setOpenIndex] = useState<number | null>(null)
+
+  // Initialize open group based on current path
+  useEffect(()=>{
+    const idx = menuItems.findIndex(mi => mi.children && mi.children.some((c:any)=> location.pathname.startsWith(c.path)))
+    if(idx !== -1) setOpenIndex(idx)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname])
+
   const menuItems: any[] = [
     { icon: Home, label: t('nav.dashboard', 'Dashboard'), path: '/dashboard' },
     { icon: Users, label: t('nav.users', 'Users'), path: '/users' },
