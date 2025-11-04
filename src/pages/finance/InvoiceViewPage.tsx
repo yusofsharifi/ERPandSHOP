@@ -55,7 +55,7 @@ const InvoiceViewPage: React.FC = () => {
   return (
     <div className={i18n.language === 'fa' ? 'font-farsi' : ''}>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-2xl font-semibold">{i18n.language === 'fa' ? 'فاکتور' : 'Invoice'}</h2>
+        <h2 className="text-2xl font-semibold">{t('invoice') || (i18n.language === 'fa' ? 'فاکتور' : 'Invoice')}</h2>
       </div>
       <Card>
         <CardHeader>
