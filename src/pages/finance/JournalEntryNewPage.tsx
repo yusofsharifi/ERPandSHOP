@@ -1,4 +1,3 @@
-import React, { useState, useMemo, useEffect } from 'react'
 import React, { useState, useEffect, useMemo } from 'react'
 import JournalLinesTable from '@/components/finance/JournalLinesTable'
 import TotalsBar from '@/components/finance/TotalsBar'
