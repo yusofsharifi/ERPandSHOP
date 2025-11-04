@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next'
 interface Line { id: string; description: string; qty: number; unit_price: number; tax_rate: number; line_total: number }
 
 const InvoiceNewPage: React.FC = () => {
-  const { i18n } = useTranslation()
+  const { i18n, t } = useTranslation()
   const [step, setStep] = useState(0)
   const [partnerId, setPartnerId] = useState('')
   const [type, setType] = useState('sale')
@@ -55,11 +55,11 @@ const InvoiceNewPage: React.FC = () => {
   return (
     <div className={i18n.language === 'fa' ? 'font-farsi' : ''}>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-2xl font-semibold">{i18n.language === 'fa' ? 'فاکتور جدید' : 'New Invoice'}</h2>
+        <h2 className="text-2xl font-semibold">{t('new_invoice') || (i18n.language === 'fa' ? 'فاکتور جدید' : 'New Invoice')}</h2>
       </div>
       <Card>
         <CardHeader>
-          <CardTitle>{i18n.language === 'fa' ? 'جادوگر فاکتور' : 'Invoice Wizard'}</CardTitle>
+          <CardTitle>{t('invoice_wizard') || (i18n.language === 'fa' ? 'جادوگر فاکتور' : 'Invoice Wizard')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="mb-4">{i18n.language === 'fa' ? `مرحله ${step+1} / 3` : `Step ${step+1} / 3`}</div>
@@ -82,7 +82,7 @@ const InvoiceNewPage: React.FC = () => {
             <div>
               <div className="mb-2 flex justify-between">
                 <h4 className="font-semibold">{i18n.language === 'fa' ? 'سطرها' : 'Lines'}</h4>
-                <Button onClick={addLine}>{i18n.language === 'fa' ? 'افزودن سطر' : 'Add Line'}</Button>
+                <Button onClick={addLine}>{t('add') || (i18n.language === 'fa' ? 'افزودن سطر' : 'Add Line')}</Button>
               </div>
               <div className="space-y-2">
                 {lines.map(l => (
@@ -107,8 +107,8 @@ const InvoiceNewPage: React.FC = () => {
           )}
 
           <div className="flex justify-end gap-2 mt-4">
-            {step > 0 && <Button variant="outline" onClick={() => setStep(s => s-1)}>{i18n.language === 'fa' ? 'بازگشت' : 'Back'}</Button>}
-            {step < 2 ? <Button onClick={() => setStep(s => s+1)}>{i18n.language === 'fa' ? 'بعدی' : 'Next'}</Button> : <Button onClick={create}>{i18n.language === 'fa' ? 'ایجاد' : 'Create'}</Button>}
+            {step > 0 && <Button variant="outline" onClick={() => setStep(s => s-1)}>{t('back') || (i18n.language === 'fa' ? 'بازگشت' : 'Back')}</Button>}
+            {step < 2 ? <Button onClick={() => setStep(s => s+1)}>{t('next') || (i18n.language === 'fa' ? 'بعدی' : 'Next')}</Button> : <Button onClick={create}>{t('create') || (i18n.language === 'fa' ? 'ایجاد' : 'Create')}</Button>}
           </div>
         </CardContent>
       </Card>
