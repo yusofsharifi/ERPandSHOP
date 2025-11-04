@@ -44,12 +44,15 @@ export default function JournalEntryNewPage(){
     return ()=> window.removeEventListener('keydown', handler)
   }, [lines, date, description])
 
+  const genRef = ()=> `JE-${new Date().toISOString().slice(0,10)}-${Date.now()}`
+
   const saveDraft = async ()=>{
     try{
-      const payload = { company_id: '00000000-0000-0000-0000-000000000000', fiscal_year: fiscalYear, period: `${fiscalYear}-${String(new Date(date).getMonth()+1).padStart(2,'0')}`, date, description, lines }
+      const payload = { company_id: companyId, fiscal_year: fiscalYear, period: `${fiscalYear}-${String(new Date(date).getMonth()+1).padStart(2,'0')}`, date, description, lines, reference: reference || genRef(), document_type: documentType }
       const res = await fetch(`${API_BASE_URL}/api/v1/finance/journal-entries`, { method: 'POST', headers: {'Content-Type':'application/json','X-User-Id':'admin@local'}, body: JSON.stringify(payload) })
-      if(!res.ok){ const d = await res.json(); toast.error(d?.detail?.message?.fa || d?.detail?.message?.en || 'Error') ; return }
+      if(!res.ok){ const d = await res.json().catch(()=>({})); toast.error(d?.detail?.message?.fa || d?.detail?.message?.en || 'Error') ; return }
       const data = await res.json()
+      setReference(payload.reference)
       toast.success(t('gl.success.entry_saved') || 'Saved')
 
       // upload attachments if any
@@ -60,22 +63,21 @@ export default function JournalEntryNewPage(){
           fd.append('file', f)
           try{
             const r = await fetch(`${API_BASE_URL}/api/v1/finance/journal-entries/${data.id}/attachments`, { method: 'POST', headers: {'X-User-Id':'admin@local'}, body: fd })
-            if(r.ok){ toast.success('Attachment uploaded') } else { const dd = await r.json(); toast.error(dd?.detail?.message?.fa || dd?.detail?.message?.en || 'Attach failed') }
+            if(r.ok){ toast.success('Attachment uploaded') } else { const dd = await r.json().catch(()=>({})); toast.error(dd?.detail?.message?.fa || dd?.detail?.message?.en || 'Attach failed') }
           }catch(e){ toast.error('Attach error') }
         }
       }
 
-      // set entry id for further actions
       if(data && data.id){ setEntryId(data.id) }
       return data
-    }catch(e){ toast.error('Error saving') }
+    }catch(e){ console.error(e); toast.error('Error saving') }
   }
 
   const lockEntry = async ()=>{
     if(!entryId){ toast.error('Save draft first to lock'); return }
     try{
       const res = await fetch(`${API_BASE_URL}/api/v1/finance/journal-entries/${entryId}/lock`, { method: 'POST', headers: {'X-User-Id':'admin@local'} })
-      if(!res.ok){ const d = await res.json(); toast.error(d?.detail?.message?.fa || d?.detail?.message?.en || 'Lock failed'); return }
+      if(!res.ok){ const d = await res.json().catch(()=>({})); toast.error(d?.detail?.message?.fa || d?.detail?.message?.en || 'Lock failed'); return }
       const d = await res.json()
       setLockInfo(d.lock)
       toast.success('Locked')
@@ -86,7 +88,7 @@ export default function JournalEntryNewPage(){
     if(!entryId){ toast.error('No entry'); return }
     try{
       const res = await fetch(`${API_BASE_URL}/api/v1/finance/journal-entries/${entryId}/unlock`, { method: 'POST', headers: {'X-User-Id':'admin@local'} })
-      if(!res.ok){ const d = await res.json(); toast.error(d?.detail?.message?.fa || d?.detail?.message?.en || 'Unlock failed'); return }
+      if(!res.ok){ const d = await res.json().catch(()=>({})); toast.error(d?.detail?.message?.fa || d?.detail?.message?.en || 'Unlock failed'); return }
       const d = await res.json()
       setLockInfo(null)
       toast.success('Unlocked')
@@ -95,8 +97,7 @@ export default function JournalEntryNewPage(){
 
   const openPost = async ()=>{
     if(Number(totals.totalDebit.toFixed(2)) !== Number(totals.totalCredit.toFixed(2))){ toast.error(t('gl.error.not_balanced') || 'Not balanced'); return }
-    // preview next number (in-memory backend cannot predict global number; show placeholder)
-    setPreview({ number: 'preview', date })
+    setPreview({ number: reference || genRef(), date })
     setConfirmOpen(true)
   }
 
@@ -104,10 +105,22 @@ export default function JournalEntryNewPage(){
     setConfirmOpen(false)
     const draft = await saveDraft()
     if(!draft || !draft.id) return
-    const res = await fetch(`${API_BASE_URL}/api/v1/finance/journal-entries/${draft.id}/post`, { method: 'POST', headers: {'X-User-Id':'admin@local','X-User-Roles':'finance_post'} })
-    if(!res.ok){ const d=await res.json(); toast.error(d?.detail?.message?.fa || d?.detail?.message?.en||'Post failed'); return }
-    const d = await res.json()
-    toast.success(d?.message?.fa || d?.message?.en || 'Posted')
+
+    // If reversal, flip debit/credit
+    let postPayload: any = { }
+    try{
+      if(documentType === 'reversal'){
+        const reversed = (draft.lines || lines).map((l:any)=> ({ ...l, debit: l.credit || 0, credit: l.debit || 0 }))
+        postPayload = { ...draft, lines: reversed, reference: `REV-${draft.reference || genRef()}`, document_type: 'reversal' }
+      } else {
+        postPayload = { ...draft, document_type: documentType }
+      }
+
+      const res = await fetch(`${API_BASE_URL}/api/v1/finance/journal-entries/${draft.id}/post`, { method: 'POST', headers: {'Content-Type':'application/json','X-User-Id':'admin@local','X-User-Roles':'finance_post'}, body: JSON.stringify(postPayload) })
+      if(!res.ok){ const d=await res.json().catch(()=>({})); toast.error(d?.detail?.message?.fa || d?.detail?.message?.en||'Post failed'); return }
+      const d = await res.json()
+      toast.success(d?.message?.fa || d?.message?.en || 'Posted')
+    }catch(e){ console.error(e); toast.error('Post error') }
   }
 
   return (
@@ -171,11 +184,6 @@ export default function JournalEntryNewPage(){
           <input value={project} onChange={(e)=> setProject(e.target.value)} className="input" />
         </div>
 
-        <div>
-          <label className="text-sm">Department</label>
-          <input value={department} onChange={(e)=> setDepartment(e.target.value)} className="input" />
-        </div>
-
         <div className="md:col-span-3">
           <label className="text-sm">Internal Notes</label>
           <textarea value={internalNotes} onChange={(e)=> setInternalNotes(e.target.value)} className="input h-24" />
@@ -204,7 +212,7 @@ export default function JournalEntryNewPage(){
         </div>
         <div className="flex gap-2">
           <Button variant="default" onClick={()=> saveDraft()}>{t('save') || 'Save'}</Button>
-          <Button variant="secondary" onClick={openPost} disabled={lines.length < 2 || Number(totals.totalDebit.toFixed(2)) !== Number(totals.totalCredit.toFixed(2))}>{t('Post') || 'Post'}</Button>
+          <Button variant="secondary" onClick={openPost} disabled={lines.length < 2 || Number(totals.totalDebit.toFixed(2)) !== Number(totals.totalCredit.toFixed(2))}>{t('finance.post') || 'Post'}</Button>
         </div>
       </div>
 
