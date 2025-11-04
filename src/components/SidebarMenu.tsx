@@ -15,6 +15,7 @@ import {
   Store,
   Building2,
   Bell,
+  ChevronDown,
 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/Button'
