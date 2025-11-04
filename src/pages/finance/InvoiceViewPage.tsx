@@ -12,7 +12,7 @@ const InvoiceViewPage: React.FC = () => {
   const [payments, setPayments] = useState<any[]>([])
   const [openPay, setOpenPay] = useState(false)
   const navigate = useNavigate()
-  const { i18n } = useTranslation()
+  const { i18n, t } = useTranslation()
 
   const fetchInv = async () => {
     try {
