@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { API_BASE_URL } from '@/lib/utils'
 
+import { useTranslation } from 'react-i18next'
+
 export default function BalanceSheetPage(){
+  const { t } = useTranslation()
   const [rows, setRows] = useState<any[]>([])
   useEffect(()=>{ (async ()=>{
     try{
@@ -21,7 +24,7 @@ export default function BalanceSheetPage(){
 
   return (
     <div className="p-4">
-      <h2 className="text-lg font-bold">Balance Sheet</h2>
+      <h2 className="text-lg font-bold">{t('finance.balance_sheet') || 'Balance Sheet'}</h2>
       <div className="mt-3">
         <table className="w-full table-auto"><thead><tr><th>Group</th><th>Account</th><th className="text-right">Amount</th></tr></thead>
           <tbody>
