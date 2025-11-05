@@ -31,15 +31,20 @@ const PartnerAgingPage: React.FC = () => {
   }, [id])
 
   const exportCsv = async () => {
-    const res = await fetch(`/api/v1/arap/partners/${id}/aging/export`)
-    if (!res.ok) return
-    const blob = await res.blob()
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `aging_${id}.csv`
-    a.click()
-    URL.revokeObjectURL(url)
+    try {
+      const res = await fetch(`/api/v1/arap/partners/${id}/aging/export`)
+      if (!res.ok) { toast.error(i18n.language === 'fa' ? 'خطا در صادرات' : 'Export failed'); return }
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `aging_${id}.csv`
+      a.click()
+      URL.revokeObjectURL(url)
+    } catch (e) {
+      console.error('exportCsv failed', e)
+      toast.error(i18n.language === 'fa' ? 'خطا در صادرات' : 'Export failed')
+    }
   }
 
   return (
