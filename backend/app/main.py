@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.db.init_db import init_db
 
-from app.api.routes import auth, users, roles, settings as settings_router, notifications, dashboard, finance_gl
+from app.api.routes import auth, users, roles, settings as settings_router, notifications, dashboard, finance_gl, ar_ap, treasury, payroll, reports, customers, invoices, sales_orders
 
 app = FastAPI(title=settings.PROJECT_NAME)
 
@@ -24,11 +24,25 @@ app.include_router(settings_router.router, prefix=settings.API_V1_STR + "/settin
 app.include_router(notifications.router, prefix=settings.API_V1_STR + "/notifications", tags=["notifications"])
 app.include_router(dashboard.router, prefix=settings.API_V1_STR + "/dashboard", tags=["dashboard"])
 app.include_router(finance_gl.router, prefix=settings.API_V1_STR + "/finance", tags=["finance"])
+app.include_router(reports.router, prefix=settings.API_V1_STR + "/finance", tags=["reports"])
+app.include_router(ar_ap.router, prefix=settings.API_V1_STR + "/arap", tags=["arap"])
+    app.include_router(customers.router, prefix=settings.API_V1_STR + "/customers", tags=["customers"])
+    app.include_router(invoices.router, prefix=settings.API_V1_STR + "/invoices", tags=["invoices"])
+    app.include_router(sales_orders.router, prefix=settings.API_V1_STR + "/sales-orders", tags=["sales_orders"])
+    app.include_router(treasury.router, prefix=settings.API_V1_STR + "/treasury", tags=["treasury"])
+    app.include_router(payroll.router, prefix=settings.API_V1_STR + "/payroll", tags=["payroll"])
+    app.include_router(hr.router, prefix=settings.API_V1_STR + "/hr", tags=["hr"])
 
 @app.on_event("startup")
 def on_startup():
     # Initialize DB (create tables)
     init_db()
+
+# Prometheus metrics
+from app.metrics import metrics_endpoint
+@app.get('/metrics')
+def metrics():
+    return metrics_endpoint()
 
 
 if __name__ == "__main__":

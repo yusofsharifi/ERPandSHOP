@@ -17,39 +17,59 @@ interface UserRow {
 }
 
 const fetchUsers = async (page = 1, per_page = 10, search = '', role = '', status = '') => {
-  const params = new URLSearchParams({ page: String(page), per_page: String(per_page) })
-  if (search) params.set('search', search)
-  if (role) params.set('role', role)
-  if (status) params.set('status', status)
-  const res = await fetch(`/api/users?${params.toString()}`)
-  if (!res.ok) throw new Error('Failed to fetch users')
-  return res.json()
+  try {
+    const params = new URLSearchParams({ page: String(page), per_page: String(per_page) })
+    if (search) params.set('search', search)
+    if (role) params.set('role', role)
+    if (status) params.set('status', status)
+    const res = await fetch(`/api/users?${params.toString()}`)
+    if (!res.ok) throw new Error('Failed to fetch users')
+    return res.json()
+  } catch (err) {
+    console.error('fetchUsers error', err)
+    throw new Error('Failed to fetch users')
+  }
 }
 
 const createUserApi = async (payload: any) => {
-  const res = await fetch('/api/users', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  })
-  if (!res.ok) throw new Error('Create user failed')
-  return res.json()
+  try {
+    const res = await fetch('/api/users', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+    if (!res.ok) throw new Error('Create user failed')
+    return res.json()
+  } catch (err) {
+    console.error('createUserApi error', err)
+    throw new Error('Create user failed')
+  }
 }
 
 const updateUserApi = async (id: string, payload: any) => {
-  const res = await fetch(`/api/users/${id}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  })
-  if (!res.ok) throw new Error('Update user failed')
-  return res.json()
+  try {
+    const res = await fetch(`/api/users/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+    if (!res.ok) throw new Error('Update user failed')
+    return res.json()
+  } catch (err) {
+    console.error('updateUserApi error', err)
+    throw new Error('Update user failed')
+  }
 }
 
 const deleteUserApi = async (id: string) => {
-  const res = await fetch(`/api/users/${id}`, { method: 'DELETE' })
-  if (!res.ok) throw new Error('Delete user failed')
-  return res.json()
+  try {
+    const res = await fetch(`/api/users/${id}`, { method: 'DELETE' })
+    if (!res.ok) throw new Error('Delete user failed')
+    return res.json()
+  } catch (err) {
+    console.error('deleteUserApi error', err)
+    throw new Error('Delete user failed')
+  }
 }
 
 const UsersPage: React.FC = () => {

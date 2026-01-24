@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, Body, status, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Body, status, Request
 from typing import Optional, List
 from uuid import UUID, uuid4
 from app.schemas import gl as gl_schemas
@@ -149,9 +150,39 @@ def reverse_entry(entry_id: UUID, current_user=Depends(get_current_user), auto_p
         raise HTTPException(status_code=400, detail={"code":"validation_error","message":{"fa":str(e),"en":str(e)}})
 
 @router.get("/reports/trial-balance")
-def trial_balance(company_id: UUID = Query(...), date_to: Optional[str] = Query(None)):
-    res = gl_service.trial_balance(company_id, date_to=date_to)
+def trial_balance(company_id: UUID = Query(...), date_to: Optional[str] = Query(None), include_zero: bool = Query(False)):
+    # Delegate to reports service (supports DB-backed SQL or in-memory fallback)
+    from app.services.reports_service import trial_balance as report_trial_balance
+    res = report_trial_balance(str(company_id), date_to=date_to, include_zero=include_zero)
     return {"items": res}
+
+
+@router.get("/reports/balance-sheet")
+def balance_sheet(company_id: UUID = Query(...), date_to: Optional[str] = Query(None)):
+    from app.services.reports_service import balance_sheet as report_balance_sheet
+    res = report_balance_sheet(str(company_id), date_to=date_to)
+    return {"items": res}
+
+
+@router.get("/reports/pnl")
+def pnl_report(company_id: UUID = Query(...), date_from: Optional[str] = Query(None), date_to: Optional[str] = Query(None)):
+    from app.services.reports_service import pnl as report_pnl
+    res = report_pnl(str(company_id), date_from=date_from, date_to=date_to)
+    return {"items": res}
+
+
+@router.get("/reports/cashflow")
+def cashflow_report(company_id: UUID = Query(...), date_from: Optional[str] = Query(None), date_to: Optional[str] = Query(None), method: str = Query('direct')):
+    from app.services.reports_service import cashflow as report_cashflow
+    res = report_cashflow(str(company_id), date_from=date_from, date_to=date_to, method=method)
+    return {"items": res}
+
+
+@router.get("/reports/ledger")
+def ledger_report(company_id: UUID = Query(...), account_id: Optional[UUID] = Query(None), date_from: Optional[str] = Query(None), date_to: Optional[str] = Query(None), page: int = Query(1), per_page: int = Query(20)):
+    from app.services.reports_service import ledger as report_ledger
+    res = report_ledger(str(company_id), str(account_id) if account_id else None, date_from=date_from, date_to=date_to, page=page, per_page=per_page)
+    return res
 
 
 # Attachments upload

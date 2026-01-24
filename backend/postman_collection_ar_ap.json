@@ -1,0 +1,75 @@
+{
+  "info": {
+    "name": "AR_AP API",
+    "_postman_id": "arap-collection-001",
+    "description": "Postman collection for AR/AP endpoints. Descriptions include fa/en translations.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "List Partners",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/api/v1/arap/partners",
+        "description": "List partners / لیست طرف حساب‌ها"
+      }
+    },
+    {
+      "name": "Create Partner",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "X-User-Id", "value": "1" },
+          { "key": "X-User-Roles", "value": "admin" }
+        ],
+        "body": { "mode": "raw", "raw": "{ \"name\": \"Acme Corp\", \"partner_type\": \"customer\", \"credit_limit\": \"1000\" }" },
+        "url": "{{base_url}}/api/v1/arap/partners",
+        "description": "Create partner / ایجاد طرف حساب"
+      }
+    },
+    {
+      "name": "Create Invoice (Draft)",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "X-User-Id", "value": "1" } ],
+        "body": { "mode": "raw", "raw": "{ \"partner_id\": \"00000000-0000-0000-0000-000000000001\", \"invoice_type\": \"sale\", \"date\": \"2025-01-01\", \"due_date\": \"2025-01-31\", \"lines\": [ { \"product_id\": null, \"description\": \"Service A\", \"qty\": 1, \"unit_price\": \"100.00\", \"tax_rate\": \"0\" } ] }" },
+        "url": "{{base_url}}/api/v1/arap/invoices",
+        "description": "Create invoice (draft) / ایجاد فاکتور (پیش‌نویس)"
+      }
+    },
+    {
+      "name": "Post Invoice",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "X-User-Id", "value": "1" }, { "key": "X-User-Roles", "value": "finance_post" } ],
+        "url": "{{base_url}}/api/v1/arap/invoices/:invoice_id/post",
+        "description": "Post invoice (requires finance_post) / ثبت نهایی فاکتور (نیازمند دسترسی)",
+        "body": {}
+      }
+    },
+    {
+      "name": "Create Payment",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "X-User-Id", "value": "1" }, { "key": "X-User-Roles", "value": "finance_post" } ],
+        "body": { "mode": "raw", "raw": "{ \"invoice_id\": \"33333333-0000-0000-0000-000000000003\", \"amount\": \"50.00\", \"method\": \"cash\" }" },
+        "url": "{{base_url}}/api/v1/arap/payments",
+        "description": "Create payment / ثبت پرداخت"
+      }
+    },
+    {
+      "name": "Overdue Check (run job)",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "X-User-Id", "value": "1" }, { "key": "X-User-Roles", "value": "admin" } ],
+        "url": "{{base_url}}/api/v1/arap/overdue-check",
+        "description": "Run overdue invoice detection and notifications / اجرای بررسی فاکتورهای سررسید گذشته"
+      }
+    }
+  ],
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8000" }
+  ]
+}

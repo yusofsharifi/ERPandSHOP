@@ -52,7 +52,12 @@ async function mockFetch(input: RequestInfo, init?: RequestInit) {
 
   // Only intercept same-origin /api requests. Pass through everything else immediately.
   if (origin !== window.location.origin || !pathname.startsWith('/api')) {
-    return originalFetch(input, init)
+    try {
+      return await originalFetch(input, init)
+    } catch (err) {
+      console.warn('External fetch failed, returning empty response', err)
+      return new Response(null, { status: 204 })
+    }
   }
 
   try {
@@ -207,9 +212,19 @@ async function mockFetch(input: RequestInfo, init?: RequestInit) {
     }
 
     // Fallback to real fetch for other endpoints
-    return originalFetch(input, init)
+    try {
+      return await originalFetch(input, init)
+    } catch (err) {
+      console.warn('Fallback fetch failed, returning empty response', err)
+      return new Response(null, { status: 204 })
+    }
   } catch (err) {
-    return originalFetch(input, init)
+    try {
+      return await originalFetch(input, init)
+    } catch (err2) {
+      console.warn('Unhandled mockFetch error and fallback fetch failed', err2)
+      return new Response(null, { status: 204 })
+    }
   }
 }
 

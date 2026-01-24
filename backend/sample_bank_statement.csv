@@ -1,0 +1,4 @@
+date,description,amount,currency,reference
+2021-01-01,Payment from Customer A,100,USD,INV-100
+2021-01-05,Bank fee,-2,USD,FEE-1
+2021-01-10,Payment from Customer B,250,USD,INV-101

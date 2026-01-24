@@ -1,3 +1,4 @@
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { AuthProvider } from './contexts/AuthContext'
 import { ThemeProvider } from './contexts/ThemeContext'
@@ -12,12 +13,48 @@ import AccountsPage from './pages/finance/AccountsPage'
 import JournalEntriesPage from './pages/finance/JournalEntriesPage'
 import JournalEntryNewPage from './pages/finance/JournalEntryNewPage'
 import TrialBalancePage from './pages/finance/TrialBalancePage'
+import BalanceSheetPage from './pages/finance/BalanceSheetPage'
+import ProfitLossPage from './pages/finance/ProfitLossPage'
+import PartnersPage from './pages/finance/PartnersPage'
+import CustomersPage from './pages/customers/index'
+import NewCustomerPage from './pages/customers/new'
+import CustomerDetailPage from './pages/customers/[id]'
+import InvoicesPage from './pages/finance/InvoicesPage'
+import InvoiceNewPage from './pages/finance/InvoiceNewPage'
+import InvoiceViewPage from './pages/finance/InvoiceViewPage'
+import PaymentsPage from './pages/finance/PaymentsPage'
+import PartnerAgingPage from './pages/finance/PartnerAgingPage'
+import SalesInvoicesPage from './pages/sales/invoices/index'
+import SalesInvoiceNewPage from './pages/sales/invoices/new'
+import SalesInvoiceDetailPage from './pages/sales/invoices/[id]'
+import SalesOrdersPage from './pages/sales/orders/index'
+import SalesOrderNewPage from './pages/sales/orders/new'
+import SalesOrderDetailPage from './pages/sales/orders/[id]'
+import SalesPage from './pages/sales/index'
+import TreasuryAccountsPage from './pages/finance/treasury/AccountsPage'
+import TreasuryTransferPage from './pages/finance/treasury/TransferPage'
+import TreasuryReconciliationPage from './pages/finance/treasury/ReconciliationPage'
+import TreasuryCashflowPage from './pages/finance/treasury/CashflowPage'
+import EmployeesPage from './pages/hr/EmployeesPage'
+import PayrollPage from './pages/hr/PayrollPage'
+import PayrollDetailsPage from './pages/hr/PayrollDetailsPage'
+import SalaryTemplatesPage from './pages/hr/SalaryTemplatesPage'
+import TaxSettingsPage from './pages/hr/TaxSettingsPage'
+import PayrollPeriodsPage from './pages/hr/PayrollPeriodsPage'
+import PayrollEmployeesPage from './pages/hr/PayrollEmployeesPage'
+import PayrollPeriodDetailsPage from './pages/hr/PayrollPeriodDetailsPage'
+import PayrollPayslipPage from './pages/hr/PayrollPayslipPage'
 import ProfilePage from './pages/ProfilePage'
 import SettingsPage from './pages/SettingsPage'
 import UsersPage from './pages/admin/UsersPage'
 import SystemSettingsPage from './pages/admin/SystemSettingsPage'
 import RolesPage from './pages/admin/RolesPage'
 import NotificationsPage from './pages/admin/NotificationsPage'
+import FinancePage from './pages/finance/index'
+import InventoryPage from './pages/inventory/index'
+import CrmPage from './pages/crm/index'
+import AnalyticsPage from './pages/analytics/index'
+import EcommercePage from './pages/ecommerce/index'
 import { Routes, Route, Navigate } from 'react-router-dom'
 
 function App() {
@@ -43,10 +80,57 @@ function App() {
               <Route path="settings" element={<SettingsPage />} />
               <Route path="admin/system-settings" element={<SystemSettingsPage />} />
               {/* Finance */}
+              <Route path="finance" element={<FinancePage />} />
               <Route path="finance/accounts" element={<AccountsPage />} />
               <Route path="finance/journal-entries" element={<JournalEntriesPage />} />
               <Route path="finance/journal-entries/new" element={<JournalEntryNewPage />} />
               <Route path="finance/reports/trial-balance" element={<TrialBalancePage />} />
+              <Route path="finance/reports/balance-sheet" element={<BalanceSheetPage />} />
+              <Route path="finance/reports/profit-loss" element={<ProfitLossPage />} />
+              <Route path="finance/partners" element={<PartnersPage />} />
+              <Route path="finance/partners/:id/aging" element={<PartnerAgingPage />} />
+              <Route path="customers" element={<CustomersPage />} />
+              <Route path="customers/new" element={<NewCustomerPage />} />
+              <Route path="customers/:id" element={<CustomerDetailPage />} />
+              <Route path="finance/invoices" element={<InvoicesPage />} />
+              <Route path="finance/invoices/new" element={<InvoiceNewPage />} />
+              <Route path="finance/invoices/:id" element={<InvoiceViewPage />} />
+              <Route path="finance/payments" element={<PaymentsPage />} />
+              <Route path="inventory" element={<InventoryPage />} />
+              <Route path="inventory/products" element={React.lazy(()=> import('./pages/inventory/products/index'))} />
+              <Route path="inventory/products/new" element={React.lazy(()=> import('./pages/inventory/products/new'))} />
+              <Route path="inventory/stock" element={React.lazy(()=> import('./pages/inventory/stock'))} />
+              <Route path="crm" element={<CrmPage />} />
+              <Route path="analytics" element={<AnalyticsPage />} />
+              <Route path="ecommerce" element={<EcommercePage />} />
+
+              {/* Sales invoices (new UI) */}
+              <Route path="sales/invoices" element={<SalesInvoicesPage />} />
+              <Route path="sales/invoices/new" element={<SalesInvoiceNewPage />} />
+              <Route path="sales/invoices/:id" element={<SalesInvoiceDetailPage />} />
+
+              {/* Sales orders (new UI) */}
+              <Route path="sales/orders" element={<SalesOrdersPage />} />
+              <Route path="sales/orders/new" element={<SalesOrderNewPage />} />
+              <Route path="sales/orders/:id" element={<SalesOrderDetailPage />} />
+
+              {/* Treasury */}
+              <Route path="finance/treasury/accounts" element={<TreasuryAccountsPage />} />
+              <Route path="finance/treasury/transfer" element={<TreasuryTransferPage />} />
+              <Route path="finance/treasury/reconciliation" element={<TreasuryReconciliationPage />} />
+              <Route path="finance/treasury/cashflow" element={<TreasuryCashflowPage />} />
+
+              {/* HR */}
+              <Route path="hr" element={<EmployeesPage />} />
+              <Route path="hr/employees" element={<EmployeesPage />} />
+              <Route path="hr/payroll" element={<PayrollPage />} />
+              <Route path="hr/payroll/periods" element={<PayrollPeriodsPage />} />
+              <Route path="hr/payroll/employees" element={<PayrollEmployeesPage />} />
+              <Route path="hr/payroll/:period_id/details" element={<PayrollPeriodDetailsPage />} />
+              <Route path="hr/payroll/:id/payslip" element={<PayrollPayslipPage />} />
+              <Route path="hr/payroll/:id" element={<PayrollDetailsPage />} />
+              <Route path="hr/salary-templates" element={<SalaryTemplatesPage />} />
+              <Route path="hr/tax-settings" element={<TaxSettingsPage />} />
             </Route>
             
             {/* Catch all */}
